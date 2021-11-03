@@ -1,3 +1,7 @@
+const { assert } = require('chai')
+const sinon = require('sinon')
+const { ArgvParser } = require('../lib/argv-parser')
+
 describe('ArgvParser', function () {
 
   describe('exports', function () {
@@ -10,10 +14,34 @@ describe('ArgvParser', function () {
   })
 
   describe('.config()', function () {
-    it('Should throw an error if configuration is not passed')
-    it('Should call the .declare() method if the "declare" option is passed')
-    it('Should pass a value of the "declare" option to the .declare() method')
-    it('Should return this ArgvParser instance')
+  
+    it('Should throw an error if configuration is not passed', function () {
+      const parser = new ArgvParser()
+      assert.throws(() => parser.config())
+    })
+    
+    it('Should call the .declare() method if the "declare" option is passed', function () {
+      const parser = new ArgvParser()
+      const config = { declare: {} }
+      const spy = sinon.spy(parser, 'declare')
+      parser.config(config)
+      assert(spy.called)
+    })
+
+    it('Should pass a value of the "declare" option to the .declare() method', function () {
+      const parser = new ArgvParser()
+      const config = { declare: {} }
+      const spy = sinon.spy(parser, 'declare')
+      parser.config(config)
+      assert(spy.calledWith(config.declare))
+    })
+
+    it('Should return this ArgvParser instance', function () {
+      const parser = new ArgvParser()
+      const config = { declare: {} }
+      const returned = parser.config(config)
+      assert.strictEqual(returned, parser)
+    })
   })
 
   describe('.declare()', function () {
