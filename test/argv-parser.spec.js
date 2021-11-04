@@ -22,7 +22,7 @@ describe('ArgvParser', function () {
     
     it('Should call the .declare() method if the "declare" option is passed', function () {
       const parser = new ArgvParser()
-      const config = { declare: {} }
+      const config = { declare: { name: '-c'} }
       const spy = sinon.spy(parser, 'declare')
       parser.config(config)
       assert(spy.called)
@@ -30,7 +30,7 @@ describe('ArgvParser', function () {
 
     it('Should pass a value of the "declare" option to the .declare() method', function () {
       const parser = new ArgvParser()
-      const config = { declare: {} }
+      const config = { declare: { name: '-c'} }
       const spy = sinon.spy(parser, 'declare')
       parser.config(config)
       assert(spy.calledWith(config.declare))
@@ -38,18 +38,74 @@ describe('ArgvParser', function () {
 
     it('Should return this ArgvParser instance', function () {
       const parser = new ArgvParser()
-      const config = { declare: {} }
+      const config = { declare: { name: '-c'} }
       const returned = parser.config(config)
       assert.strictEqual(returned, parser)
     })
   })
 
   describe('.declare()', function () {
-    it('Should throw an error if the argument is not passed')
-    it('Should not throw any error if the argument is an object')
-    it('Should not throw any error if the argument is an array')
-    it('Should throw an error if any option does not have the "name" property ')
-    it('Should complete each option with the missed properties')
+
+    it('Should throw an error if the argument is not object or array', function () {
+      const parser = new ArgvParser()
+
+      assert.throws(() => parser.declare())
+      assert.throws(() => parser.declare(3))
+      assert.throws(() => parser.declare('str'))
+
+      assert.doesNotThrow(() => parser.declare({ name: '--option' }))
+      assert.doesNotThrow(() => parser.declare([{ name: '-o' }]))
+    })
+
+    it('Should throw an error if any option does not have the "name" property ', function () {
+      const parser = new ArgvParser()
+      assert.throws(() => {
+        parser.declare([
+          { name: `--option` },
+          { isFlag: true }
+        ])
+      })
+    })
+    
+    it('Should throw an error if the any options name is invalid', function () {
+      const parser = new ArgvParser()
+      assert.throws(() => parser.declare({ name: '' }))
+      assert.throws(() => parser.declare({ name: 'o' }))
+      assert.throws(() => parser.declare({ name: '-' }))
+      assert.throws(() => parser.declare({ name: '--' }))
+      assert.throws(() => parser.declare({ name: '---' }))
+      assert.throws(() => parser.declare({ name: '-cc' }))
+      assert.throws(() => parser.declare({ name: '--c' }))
+      assert.throws(() => parser.declare({ name: '---conf' }))
+    })
+    
+    it('Should throw an error if the alias parameter is not an array of the options names', function () {
+      const parser = new ArgvParser()
+      assert.throws(() => parser.declare({ name: `--conf`, alias: '-c'}))
+      assert.throws(() => parser.declare({ name: `--conf`, alias: ['-']}))
+    })
+
+    it('Should throw an error if a passed option name has already been declared or aliased', function () {
+      const parser = new ArgvParser()
+      
+      parser.declare({
+        name: '--debug',
+        alias: ['-d']
+      })
+
+      assert.throws(() => parser.declare({ name: '--debug' }))
+      assert.throws(() => parser.declare({ name: '-d' }))
+    })
+    
+    it('Should throw an error if both parameters "isFlag" and "isArray" are true', () => {
+      const parser = new ArgvParser()
+      
+      assert.throws(() => parser.declare({
+        name: '--debug',
+        isFlag: true,
+        isArray: true,
+      }))
+    })
   })
 
   describe('.exec()', function () {
