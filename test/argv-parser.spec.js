@@ -1,6 +1,22 @@
 const { assert } = require('chai')
 const sinon = require('sinon')
-const { ArgvParser } = require('../lib/argv-parser')
+const mockArgv = require('mock-argv')
+
+const {
+  ArgvParser,
+  ArgvParserError,
+  InputError
+} = require('../lib/argv-parser')
+
+const {
+  FirstArgumentError,
+  InvalidOptionsError,
+  UnknownOptionNameError,
+  FlagOptionValueError,
+  UnexpectedValuesArrayError,
+  MissedRequiredOptionError,
+  MissedOptionValueError,
+} = require('../lib/argv-parser-errors')
 
 describe('ArgvParser', function () {
 
@@ -87,7 +103,6 @@ describe('ArgvParser', function () {
 
     it('Should throw an error if a passed option name has already been declared or aliased', function () {
       const parser = new ArgvParser()
-      
       parser.declare({
         name: '--debug',
         alias: ['-d']
@@ -109,13 +124,134 @@ describe('ArgvParser', function () {
   })
 
   describe('.exec()', function () {
-    it('Should throw an error if the third argv item is not option')
-    it('Should throw an error if the argv array contains not valid option name')
-    it('Should throw an error if the argv array contains unknown option')
-    it('Should throw an error if the some value is passed to the flag option')
-    it('Should throw an error if more then one values are passed to the non-array option')
-    it('Should throw an error if any required option is not passed')
-    it('Should return a result of the .getAll() method')
+
+    it('Should throw an error if the third argv item is not option', async function () {
+      const parser = new ArgvParser()
+      await mockArgv(['debug'], () => {
+        assert.throws(() => parser.exec(), InputError)
+      })
+      await mockArgv(['debug'], () => {
+        assert.throws(() => parser.exec(), FirstArgumentError)
+      })
+    })
+
+    it('Should throw an error if the argv array contains not valid option name', async function() {
+      const parser = new ArgvParser()
+      await mockArgv(['--conf', '-debug'], () => {
+        assert.throws(() => parser.exec(), InputError)
+      })
+      await mockArgv(['-c', 'a', `--d`], () => {
+        assert.throws(() => parser.exec(), InvalidOptionsError)
+      })
+    })
+    
+    it('Should throw an error if the argv array contains unknown option', async function () {
+      const parser = new ArgvParser()
+      parser.declare({ name: '--debug' })
+
+      await mockArgv(['--conf', '--debug'], () => {
+        assert.throws(() => parser.exec(), UnknownOptionNameError)
+      })
+      await mockArgv(['-c', '--debug'], () => {
+        assert.throws(() => parser.exec(), UnknownOptionNameError)
+      })
+    })
+
+    it('Should throw an error if the some value is passed to the flag option', async function() {
+      const parser = new ArgvParser()
+
+      parser.declare({
+        name: '--debug',
+        isFlag: true,
+      })
+      
+      await mockArgv(['--debug', 'simple'], () => {
+        assert.throws(() => parser.exec(), FlagOptionValueError)
+      })
+    })
+
+    it('Should throw an error if more then one values are passed to the non-array option', async function() {
+      const parser = new ArgvParser()
+      
+      parser.declare({
+        name: '--input',
+        isFlag: false,
+      })
+
+      await mockArgv(['--input', './in.js', 'stdin'], () => {
+        assert.throws(() => parser.exec(), UnexpectedValuesArrayError)
+      })
+    })
+
+    it('Should throw an error if any required option is not passed', async function () {
+      const parser = new ArgvParser()
+      
+      parser.declare([
+        {
+          name: '--debug',
+          isFlag: true,
+          isRequired: true
+        },
+        {
+          name: '--input',
+          isRequired: true
+        }
+      ])
+      
+      await mockArgv(['--debug'], () => {
+        assert.throws(() => parser.exec(), MissedRequiredOptionError)
+      })
+    })
+    
+    it(`Should throw an error if the value of the non-flagable options is not passed`, async function() {
+      const parser = new ArgvParser()
+      
+      parser.declare([
+        {
+          name: '--debug',
+          isFlag: true,
+          isRequired: true
+        },
+        {
+          name: '--input',
+          isRequired: true
+        }
+      ])
+      
+      await mockArgv(['--input', '--debug'], () => {
+        assert.throws(() => parser.exec(), MissedOptionValueError)
+      })
+    })
+
+    it('Should return a result of the .getAll() method', async function () {
+      const parser = new ArgvParser()
+      
+      parser.declare([
+        {
+          name: '--config',
+          alias: ['-c'],
+          isRequired: true,
+        },
+        {
+          name: '--input',
+          alias: ['-i'],
+        },
+        {
+          name: '--output',
+          alias: ['-o'],
+        },
+        {
+          name: '--debug',
+          isFlag: true,
+        }
+      ])
+      
+      await mockArgv(['--input', './input', '-c', 'C1'], () => {
+        const execRes = parser.exec()
+        const getAllRes = parser.getAll()
+        assert.deepEqual(execRes, getAllRes)
+      })
+    })
   })
   
   describe('.getAll()', function () {
