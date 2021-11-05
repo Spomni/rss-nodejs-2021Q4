@@ -1,8 +1,32 @@
+const { Transform, Readable, Writable, PassThrough } = require('stream')
+const { assert } = require('chai')
+
+const {
+  RotTransformer
+} = require('../lib/transform')
+
+function testTransformer(transformer, input, check) {
+
+  const read = new Readable({ read: () => {} })
+
+  read
+    .pipe(transformer)
+    .pipe(new PassThrough())
+      .on(`data`, (data) => check(data.toString()))
+
+  read.push(input)
+}
+
 describe('transform', function () {
+
+  const { RIGHT, LEFT } = RotTransformer.DIRECTION_
+  const { RotTransformerError } = RotTransformer
   
   describe('exports', function () {
   
-    it('Should export the RotTransformer class extending the Transform class of the stream module')
+    it('Should export the RotTransformer class extending the Transform class of the stream module', function () {
+      assert.instanceOf(new RotTransformer(1, RIGHT), Transform)
+    })
 
     it('Should export the CaesarEncode class extending the RotTransformer one')
     it('Should export the CaesarDecode class extending the RotTransformer one')
@@ -15,27 +39,134 @@ describe('transform', function () {
   
   describe('RotTransformer', () => {
   
+    describe('static', function () {
+
+      it('Should have the static property "DIRECTION_" that contains the propertirs "RIGHT" and "LEFT"', function () {
+        assert.property(RotTransformer, 'DIRECTION_')
+        assert.property(RotTransformer.DIRECTION_, 'LEFT')
+        assert.property(RotTransformer.DIRECTION_, 'RIGHT')
+      })
+      
+      it('Should has the property RotTransformerError that extends the Error class', function () {
+        const { RotTransformerError } = RotTransformer
+        assert.instanceOf(new RotTransformerError(), Error)
+      })
+    })
+  
     describe('constructor()', function () {
-      it('Should throw an error if the "shifting" option is not passed')
-      it('Should throw an error if the "direction" option is not passed')
+
+      it('Should throw an error if the "shifting" option is not passed', function () {
+        assert.throws(
+          () => new RotTransformer(undefined, RIGHT),
+          RotTransformerError
+        )
+      })
+
+      it('Should throw an error if the "direction" option is not passed', function () {
+        assert.throws(
+          () => new RotTransformer(3),
+          RotTransformerError
+        )
+      })
+      
       it('Should return a transform stream')
     })
     
-    describe('#shifting', function () => {
-      it('Should be read only')
-      it('Should contains a value of the shifting passed to the constructor')
+    describe('#shifting', function () {
+
+      it('Should be read only', () => {
+        const rot = new RotTransformer(1, RIGHT)
+        rot.shifting = 0
+        assert.strictEqual(rot.shifting, 1)
+      })
+
+      it('Should contains a value of the shifting passed to the constructor', () => {
+        const rot = new RotTransformer(1, RIGHT)
+        rot.shifting = 0
+        assert.strictEqual(rot.shifting, 1)
+      })
     })
     
-    describe('#direction', function () => {
-      it('Should be read only')
-      it('Should contains a value of the shifting passed to the constructor')
+    describe('#direction', function () {
+      it('Should be read only', () => {
+        const rot = new RotTransformer(1, RIGHT)
+        rot.direction = 0
+        assert.strictEqual(rot.direction, RIGHT)
+      })
+
+      it('Should contains a value of the shifting passed to the constructor', () => {
+        const rot = new RotTransformer(1, RIGHT)
+        rot.direction = 0
+        assert.strictEqual(rot.direction, RIGHT)
+      })
     })
     
     describe('._transform()', () => {
-      it('Should replace each letter of the string with the letter that number in the alphabet differ by the shifting value')
-      it('If the shifted number is out from the alphabet numbers count should continue shifting from the alphabet start')
-      it('Should work fine with lowercase and uppercase symbols')
-      it('Should not replace non-alphabet symbols')
+
+      it('Should replace each letter of the string with the letter that number in the alphabet differ by the shifting value', () => {
+        
+        testTransformer(
+          new RotTransformer(1, RIGHT),
+          'abc',
+          (res) => assert.strictEqual(res, 'bcd')
+        )
+        
+        testTransformer(
+          new RotTransformer(1, LEFT),
+          'xyz',
+          (res) => assert.strictEqual(res, 'wxy')
+        )
+        
+        testTransformer(
+          new RotTransformer(3, LEFT),
+          'NOP',
+          (res) => assert.strictEqual(res, 'KLM')
+        )
+      })
+
+      it('If the shifted number is out from the alphabet numbers count should continue shifting from the alphabet start or end', function () {
+        
+        testTransformer(
+          new RotTransformer(3, RIGHT),
+          'xyz',
+          (res) => assert.strictEqual(res, 'abc')
+        )
+        
+        testTransformer(
+          new RotTransformer(2, LEFT),
+          'abc',
+          (res) => assert.strictEqual(res, 'yza')
+        )
+        
+        testTransformer(
+          new RotTransformer(3, RIGHT),
+          'XYz',
+          (res) => assert.strictEqual(res, 'ABc')
+        )
+      })
+
+      it('Should work fine with lowercase and uppercase symbols', () => {
+        testTransformer(
+          new RotTransformer(3, RIGHT),
+          'xYz',
+          (res) => assert.strictEqual(res, 'aBc')
+        )
+      })
+      
+      it('Should not replace non-alphabet symbols', () => {
+
+        testTransformer(
+          new RotTransformer(3, RIGHT),
+          'йцг',
+          (res) => assert.strictEqual(res, 'йцг')
+        )
+      
+        testTransformer(
+          new RotTransformer(3, RIGHT),
+          'x-z',
+          (res) => assert.strictEqual(res, 'a-c')
+        )
+      })
     })
   })
   
