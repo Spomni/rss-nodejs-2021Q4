@@ -7,6 +7,7 @@ const {
   CaesarDecoder,
   Rot8Encoder,
   Rot8Decoder,
+  AtbashTransformer,
 } = require('../lib/transform')
 
 function testTransformer(transformer, input, check) {
@@ -46,7 +47,9 @@ describe('transform', function () {
       assert.instanceOf(new Rot8Decoder(), RotTransformer)
     })
 
-    it('Should export the AtbashTransformer class extending the Transform class of the stream module')
+    it('Should export the AtbashTransformer class extending the Transform class of the stream module', function () {
+      assert.instanceOf(new AtbashTransformer(), Transform)
+    })
   })
   
   describe('RotTransformer', () => {
@@ -80,8 +83,6 @@ describe('transform', function () {
           RotTransformerError
         )
       })
-      
-      it('Should return a transform stream')
     })
     
     describe('#shifting', function () {
@@ -240,9 +241,33 @@ describe('transform', function () {
   
   describe('AtbashTransformer', function () {
     describe('._transform()', () => {
-      it('Should replace each letter of the string with the letter that number is reversed')
-      it('Should work fine with lowercase and uppercase symbols')
-      it('Should not replace non-alphabet symbols')
+
+      it('Should replace each letter of the string with the letter that number is reversed', () => {
+        
+        testTransformer(
+          new AtbashTransformer(),
+          'abc',
+          (res) => assert.strictEqual(res, 'zyx')
+        )
+      })
+
+      it('Should work fine with lowercase and uppercase symbols', () => {
+        
+        testTransformer(
+          new AtbashTransformer(),
+          'abcD',
+          (res) => assert.strictEqual(res, 'zyxW')
+        )
+      })
+      
+      it('Should not replace non-alphabet symbols', () => {
+        
+        testTransformer(
+          new AtbashTransformer(),
+          'a(bc)',
+          (res) => assert.strictEqual(res, 'z(yx)')
+        )
+      })
     })
   })
 })
