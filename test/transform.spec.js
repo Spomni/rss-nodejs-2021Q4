@@ -5,6 +5,8 @@ const {
   RotTransformer,
   CaesarEncoder,
   CaesarDecoder,
+  Rot8Encoder,
+  Rot8Decoder,
 } = require('../lib/transform')
 
 function testTransformer(transformer, input, check) {
@@ -37,8 +39,12 @@ describe('transform', function () {
       assert.instanceOf(new CaesarDecoder(), RotTransformer)
     })
 
-    it('Should export the Rot8Encode class extending the RotTransformer one')
-    it('Should export the Rot8Decode class extending the RotTransformer one')
+    it('Should export the Rot8Encoder class extending the RotTransformer one', () => {
+      assert.instanceOf(new Rot8Encoder(), RotTransformer)
+    })
+    it('Should export the Rot8Decoder class extending the RotTransformer one', () => {
+      assert.instanceOf(new Rot8Decoder(), RotTransformer)
+    })
 
     it('Should export the AtbashTransformer class extending the Transform class of the stream module')
   })
@@ -206,15 +212,29 @@ describe('transform', function () {
   
   describe('Rot8Encoder', function () {
     describe('constructor()', function () {
-      it('Should set the instance "sifting" value to 8')
-      it('Should set the instance "direction" value to "right"')
+      it('Should set the instance "shifting" value to 8', () => {
+        const rot8 = new Rot8Encoder()
+        assert.strictEqual(rot8.shifting, 8)
+      })
+
+      it('Should set the instance "direction" value to "right"', () => {
+        const rot8 = new Rot8Encoder()
+        assert.strictEqual(rot8.direction, RIGHT)
+      })
     })
   })
   
   describe('Rot8Decoder', function () {
     describe('constructor()', function () {
-      it('Should set the instance "sifting" value to 8')
-      it('Should set the instance "direction" value to "left"')
+      it('Should set the instance "sifting" value to 8', () => {
+        const rot8 = new Rot8Decoder()
+        assert.strictEqual(rot8.shifting, 8)
+      })
+      
+      it('Should set the instance "direction" value to "left"', () => {
+        const rot8 = new Rot8Decoder()
+        assert.strictEqual(rot8.direction, LEFT)
+      })
     })
   })
   
