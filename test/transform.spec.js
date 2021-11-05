@@ -2,7 +2,9 @@ const { Transform, Readable, Writable, PassThrough } = require('stream')
 const { assert } = require('chai')
 
 const {
-  RotTransformer
+  RotTransformer,
+  CaesarEncoder,
+  CaesarDecoder,
 } = require('../lib/transform')
 
 function testTransformer(transformer, input, check) {
@@ -28,8 +30,12 @@ describe('transform', function () {
       assert.instanceOf(new RotTransformer(1, RIGHT), Transform)
     })
 
-    it('Should export the CaesarEncode class extending the RotTransformer one')
-    it('Should export the CaesarDecode class extending the RotTransformer one')
+    it('Should export the CaesarEncode class extending the RotTransformer one', () => {
+      assert.instanceOf(new CaesarEncoder(), RotTransformer)
+    })
+    it('Should export the CaesarDecode class extending the RotTransformer one', () => {
+      assert.instanceOf(new CaesarDecoder(), RotTransformer)
+    })
 
     it('Should export the Rot8Encode class extending the RotTransformer one')
     it('Should export the Rot8Decode class extending the RotTransformer one')
@@ -172,15 +178,29 @@ describe('transform', function () {
   
   describe('CaesarEncoder', function () {
     describe('constructor()', function () {
-      it('Should set the instance "sifting" value to 1')
-      it('Should set the instance "direction" value to "right"')
+      it('Should set the instance "shifting" value to 1', () => {
+        const caesar = new CaesarEncoder()
+        assert.strictEqual(caesar.shifting, 1)
+      })
+      
+      it('Should set the instance "direction" value to "right"', () => {
+        const caesar = new CaesarEncoder()
+        assert.strictEqual(caesar.direction, RIGHT)
+      })
     })
   })
   
   describe('CaesarDecoder', function () {
     describe('constructor()', function () {
-      it('Should set the instance "sifting" value to 1')
-      it('Should set the instance "direction" value to "left"')
+      it('Should set the instance "sifting" value to 1', () => {
+        const caesar = new CaesarDecoder()
+        assert.strictEqual(caesar.shifting, 1)
+      })
+      
+      it('Should set the instance "direction" value to "left"', () => {
+        const caesar = new CaesarDecoder()
+        assert.strictEqual(caesar.direction, LEFT)
+      })
     })
   })
   
