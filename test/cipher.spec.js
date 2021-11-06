@@ -1,4 +1,4 @@
-describe('cipher', function {
+describe('cipher', function () {
 
   describe('exports', function () {
     it('Should export a function as cipher propety')
