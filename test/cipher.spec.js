@@ -1,19 +1,63 @@
+const { assert } = require("chai")
+const {
+  cipher,
+  CipherError,
+  InvalidConfigError,
+} = require('../lib/cipher')
+
+const {
+  MissedConfigError,
+  ConfigIsNotStringError,
+  DashAtConfigStartError,
+  DashAtConfigEndError,
+  UnknownCipherError,
+  InvalidCipheringDirectionError,
+  InvalidCommandLengthError,
+} = require('../lib/cipher/cipher-errors')
+
 describe('cipher', function () {
 
   describe('exports', function () {
-    it('Should export a function as cipher propety')
-    it('Should export the CipherError class')
-    it('Should export the MissedConfigError class')
-    it('Should export the InvalidConfigError class')
-    it('Should export the UnavaibleInputError class')
-    it('Should export the UnavaibleOutputError class')
+
+    it('Should export a function as cipher propety', () => {
+      assert.isFunction(cipher)
+    })
+
+    it('Should export the CipherError class extending the Error one', () => {
+      assert.instanceOf(new CipherError(), Error)
+    })
+
+    it('Should export the InvalidConfigError class extending the CipherError one', () => {
+      assert.instanceOf(new InvalidConfigError(), CipherError)
+    })
+
     it('All exported errors classes should extend the CipherError class')
   })
-  
+
   describe('cipher()', function () {
-  
-    it('Should throw a MissedConfigError instance if the config option is not passed')
-    it('Should throw a InvalidConfigError instance if the config option is not valid')
+
+    it('Should throw a InvalidConfigError instance if the config option is not valid', () => {
+
+      const fixture = [
+        [undefined, MissedConfigError],
+        [{}, ConfigIsNotStringError],
+        ['C', InvalidCipheringDirectionError],
+        ['-A', DashAtConfigStartError],
+        ['A1', InvalidCipheringDirectionError],
+        ['as', UnknownCipherError],
+        ['R1-A-', DashAtConfigEndError],
+        ['CR', InvalidCipheringDirectionError],
+        ['C12', InvalidCommandLengthError],
+      ]
+
+      fixture.forEach(([ config ]) => {
+        assert.throws(() => cipher({ config }), InvalidConfigError)
+      })
+
+      fixture.forEach(([ config, constructor ]) => {
+        assert.throws(() => cipher({ config }), constructor)
+      })
+    })
 
     it('Should read from the stdin if the input option is not passed')
     it('Should read from the file described on the input option')
