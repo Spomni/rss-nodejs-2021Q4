@@ -3,6 +3,12 @@ const {
   cipher,
   CipherError,
   InvalidConfigError,
+
+  NoAccessToReadError,
+  InputIsDirectoryError,
+
+  NoAccessToWriteError,
+  OutputIsDirectoryError,
 } = require('../lib/cipher')
 
 const {
@@ -59,13 +65,33 @@ describe('cipher', function () {
       })
     })
 
+    it('Should throw a NoAccessToReadError instance if the input file is not accessed to reading', () => {
+
+      const options = { input: './no-file', config: 'A'}
+      assert.throws(() => cipher(options), NoAccessToReadError)
+    })
+
+    it('Should throw an InputIsDirectoryError instance if the passed input is directory', () => {
+      const options = { input: './lib', config: 'A'}
+      assert.throws(() => cipher(options), InputIsDirectoryError)
+    })
+
+    it('Should throw a NoAccessToWriteError instance if the output file is not accessed to writing', () => {
+
+      const options = { output: './no-file', config: 'A'}
+      assert.throws(() => cipher(options), NoAccessToWriteError)
+    })
+
+    it('Should throw an OutputIsDirectoryError instance if the passed output is directory', () => {
+      const options = { output: './lib', config: 'A'}
+      assert.throws(() => cipher(options), OutputIsDirectoryError)
+    })
+
     it('Should read from the stdin if the input option is not passed')
     it('Should read from the file described on the input option')
-    it('Should throw an UnavaibleInputError instance if input file is not accessed to reading')
 
     it('Should write to the stdout if the output option is not passed')
     it('Should write the file described on the output option')
-    it('Should throw an UnavaibleOutputError instance if output file is not accessed to reading')
 
     it('Should append output to the file content')
     it('Should write to the output every times when input takes data')
