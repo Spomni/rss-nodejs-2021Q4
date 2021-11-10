@@ -40,13 +40,15 @@ async function mockStdout(callback) {
     value: output
   })
   
-  await callback(stdout)
-
-  Object.defineProperty(process, 'stdout', {
-    writable: true,
-    enumarable: true,
-    value: stdout
-  })
+  try {
+    await callback(stdout)
+  } finally {
+    Object.defineProperty(process, 'stdout', {
+      writable: true,
+      enumarable: true,
+      value: stdout
+    })
+  }
 }
 
 async function timeout(ms) {
