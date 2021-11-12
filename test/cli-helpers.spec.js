@@ -73,11 +73,16 @@ describe('cli-helpers', function () {
       
         const fixture = [
           ['./no-file', NoAccessToWriteError],
-          ['./lib', InputIsDirectoryError]
+          ['./lib', OutputIsDirectoryError]
         ]
         
         fixture.forEach(([filePath, ErrorClass]) => {
-          it(`${ErrorClass.name}`)
+          it(`${ErrorClass.name}`, function () {
+            assert.throws(
+              () => validateCipherOptions({ output: filePath, config: 'A' }),
+              ErrorClass
+            )
+          })
         })
       })
     })
