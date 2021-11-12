@@ -58,11 +58,16 @@ describe('cli-helpers', function () {
         ]
         
         fixture.forEach(([filePath, ErrorClass]) => {
-          it(`${ErrorClass.name}`)
+          it(`${ErrorClass.name}`, function () {
+            assert.throws(
+              () => validateCipherOptions({ input: filePath, config: 'A' }),
+              ErrorClass
+            )
+          })
         })
       })
     })
-    
+
     describe('output', function () {
       describe('Should throw an error instance extending the ValidationError class if the "output" option is not valid', function () {
       
