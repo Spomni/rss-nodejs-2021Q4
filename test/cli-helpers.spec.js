@@ -1,3 +1,7 @@
+const { assert } = require('chai')
+
+const { validateCipherOptions } = require('../lib/cli-helpers')
+
 const {
   ValidationError,
 
@@ -38,11 +42,13 @@ describe('cli-helpers', function () {
         ]
         
         fixture.forEach(([config, ErrorClass]) => {
-          it(`${ErrorClass.name}`)
+          it(`${ErrorClass.name}`, function () {
+            assert.throws(() => validateCipherOptions({ config }), ErrorClass)
+          })
         })
       })
     })
-    
+
     describe('input', function () {
       describe('Should throw an error instance extending the ValidationError class if the "input" option is not valid', function () {
       
