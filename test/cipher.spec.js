@@ -130,7 +130,7 @@ describe('cipher', function () {
 
     it('Should read from the stdin and write to the stdout', async () => {
 
-      await mockStdout((stdout) => {
+      await mockStdout(async (stdout) => {
         cipher({ config: 'A' })
         
         const handleData = spy()
@@ -139,6 +139,8 @@ describe('cipher', function () {
         
         process.stdin.push(`asd`)
         process.stdin.pause()
+        
+        await timeout(0)
         
         assert(handleData.called)
       })
