@@ -3,6 +3,7 @@ const { Buffer } = require('buffer')
 const { assert } = require('chai')
 
 const ERR_REG_EXP_ = {
+
   FIRST_ARG_ERR: /FirstArgumentError: application can not be called without options\n/,
   INVALID_OPT_ERR: /InvalidOptionsError: invalid option ".+" was found\n/,
   UNKNOWN_OPT_ERR: /UnknownOptionsNameError: unknown option ".+" was found\n/,
@@ -15,9 +16,15 @@ const ERR_REG_EXP_ = {
   INPUT_IS_DIR_ERR: /InputIsDirectoryError: passed input file ".+" is a directory\n/,
   NO_WRITE_ACCESS_ERR: /NoAccessToWriteError: file ".+" can not be written: check if it exists and you have access to write\n/,
   OUTPUT_IS_DIR_ERR: /OutputIsDirectoryError: passed output file ".+" is a directory\n/,
+
+  DASHED_CONF_START_ERR: /DashAtConfigStartError: value of the option "--config" must not start with a dash symbol\n/,
+  DASHED_CONF_END_ERR: /DashAtConfigEndError: value of the option "--config" must not be ended with a dash symbol\n/,
+  TOO_LONG_COMMAND_ERR: /InvalidCommandLengthError: too long command ".+" was found on the config command with number \d+.\n\tThe ciphering command should have only two symbol for the Caesar and ROT-8 ciphers and only one symbol for the cipher Atbash\n/,
+  UNKNOWN_CIPHER_ERR: /UnknownCipherError: unknown cipher type was found on the config command ".+" with number \d+. \n\tA command should start with the letter that represents a cipher type. \n\tPossible cipher types:\n\t\tC - Caesar\n\t\tR - ROT-8\n\t\tA - Atbash\n/,
+  INVALID_DIRECTION_ERR: /InvalidCipheringDirectionError: unknown ciphering direction was found on the config command ".+" with number \d+.\n\tThe second symbol of the chained command must be a correct ciphering direction: 1 - encoding, 0 - decoding.\n\tThe Atbash cipher command \(A\) should not have any ciphering direction symbol\n/,
 }
 
-async function testFixtureArray(fixture, callback) {
+async function testCliError(fixture, callback) {
   return Promise.all(
     fixture.map((options) => new Promise((resolve, reject) => {
       const command = `node`
@@ -54,7 +61,7 @@ describe.only('cli', function () {
     it('if no option is passed', async function () {
       const fixture = ['']
 
-      await testFixtureArray(fixture, ({ subProcess, suberr }) => {
+      await testCliError(fixture, ({ subProcess, suberr }) => {
         assert.match(suberr, ERR_REG_EXP_.FIRST_ARG_ERR)
         assert.isAbove(subProcess.exitCode, 0)
       })
@@ -63,7 +70,7 @@ describe.only('cli', function () {
     it('if invalid option name is passed', async function () {
       const fixture = ['-config', '--i']
 
-      await testFixtureArray(fixture, ({ subProcess, suberr }) => {
+      await testCliError(fixture, ({ subProcess, suberr }) => {
         assert.match(suberr, ERR_REG_EXP_.INVALID_OPT_ERR)
         assert.isAbove(subProcess.exitCode, 0)
       })
@@ -72,7 +79,7 @@ describe.only('cli', function () {
     it('if any unknown option is passed', async function () {
       const fixture = ['--conf', '--price']
 
-      await testFixtureArray(fixture, ({ subProcess, suberr }) => {
+      await testCliError(fixture, ({ subProcess, suberr }) => {
         assert.match(suberr, ERR_REG_EXP_.UNKNOWN_OPT_ERR)
         assert.isAbove(subProcess.exitCode, 0)
       })
@@ -81,7 +88,7 @@ describe.only('cli', function () {
     it('if any value passed to the --debug option', async function () {
       const fixture = ['--debug true']
 
-      await testFixtureArray(fixture, ({ subProcess, suberr }) => {
+      await testCliError(fixture, ({ subProcess, suberr }) => {
         assert.match(suberr, ERR_REG_EXP_.FLAG_VALUE_ERR)
         assert.isAbove(subProcess.exitCode, 0)
       })
@@ -90,7 +97,7 @@ describe.only('cli', function () {
     it('if more than one value passed to to option --config, --input, --output or their aliases', async function () {
       const fixture = ['--config a b', '-c s d', '--input a b', '-i a s', '--output a a', '-o a s w d']
 
-      await testFixtureArray(fixture, ({ subProcess, suberr }) => {
+      await testCliError(fixture, ({ subProcess, suberr }) => {
         assert.match(suberr, ERR_REG_EXP_.UNEXPECTED_VAL_ARR_ERR)
         assert.isAbove(subProcess.exitCode, 0)
       })
@@ -99,7 +106,7 @@ describe.only('cli', function () {
     it('if the option --config is missed', async function () {
       const fixture = ['--input input.txt']
 
-      await testFixtureArray(fixture, ({ subProcess, suberr }) => {
+      await testCliError(fixture, ({ subProcess, suberr }) => {
         assert.match(suberr, ERR_REG_EXP_.MISS_REQUIRED_OPT_ERR)
         assert.isAbove(subProcess.exitCode, 0)
       })
@@ -108,7 +115,7 @@ describe.only('cli', function () {
     it('if no value is passed to option --config, --input or --output', async function () {
       const fixture = ['--config', '-c A -i', '-c A --output']
 
-      await testFixtureArray(fixture, ({ subProcess, suberr }) => {
+      await testCliError(fixture, ({ subProcess, suberr }) => {
         assert.match(suberr, ERR_REG_EXP_.MISS_OPT_VAL_ERR)
         assert.isAbove(subProcess.exitCode, 0)
       })
@@ -117,7 +124,7 @@ describe.only('cli', function () {
     it('if any option or its alias is passed more than one times', async function () {
       const fixture = ['--config A -c R1', '-c A -i a --input d -i a', '-c A --output d -c a']
 
-      await testFixtureArray(fixture, ({ subProcess, suberr }) => {
+      await testCliError(fixture, ({ subProcess, suberr }) => {
         assert.match(suberr, ERR_REG_EXP_.DUPLICATED_OPT_ERR)
         assert.isAbove(subProcess.exitCode, 0)
       })
@@ -126,7 +133,7 @@ describe.only('cli', function () {
     it('if input option lead to a non-existent file', async function () {
       const fixture = ['--config A -i no-file']
 
-      await testFixtureArray(fixture, ({ subProcess, suberr }) => {
+      await testCliError(fixture, ({ subProcess, suberr }) => {
         assert.match(suberr, ERR_REG_EXP_.NO_READ_ACCESS_ERR)
         assert.isAbove(subProcess.exitCode, 0)
       })
@@ -135,7 +142,7 @@ describe.only('cli', function () {
     it('if input option lead to a directory', async function () {
       const fixture = ['--config A -i lib']
 
-      await testFixtureArray(fixture, ({ subProcess, suberr }) => {
+      await testCliError(fixture, ({ subProcess, suberr }) => {
         assert.match(suberr, ERR_REG_EXP_.INPUT_IS_DIR_ERR)
         assert.isAbove(subProcess.exitCode, 0)
       })
@@ -144,7 +151,7 @@ describe.only('cli', function () {
     it('if output option lead to a non-existent file', async function () {
       const fixture = ['--config A -o no-file']
 
-      await testFixtureArray(fixture, ({ subProcess, suberr }) => {
+      await testCliError(fixture, ({ subProcess, suberr }) => {
         assert.match(suberr, ERR_REG_EXP_.NO_WRITE_ACCESS_ERR)
         assert.isAbove(subProcess.exitCode, 0)
       })
@@ -153,20 +160,74 @@ describe.only('cli', function () {
     it('if input option lead to a directory', async function () {
       const fixture = ['--config A -o lib']
 
-      await testFixtureArray(fixture, ({ subProcess, suberr }) => {
+      await testCliError(fixture, ({ subProcess, suberr }) => {
         assert.match(suberr, ERR_REG_EXP_.OUTPUT_IS_DIR_ERR)
         assert.isAbove(subProcess.exitCode, 0)
       })
     })
 
-    it('if the --config option is started with dash')
-    it('if the --config option is ended with dash')
-    it('if any command of the --config option has wrong length')
+    it('if the --config option is started with dash', async function () {
+      const fixture = ['--config "-A"', '-c "-C1"', '-c "--"', '-c "-"']
 
-    it('if the --config option has unknown cipher')
-    it('if the --config option has no direction for the C or R cipher')
-    it('if the --config option has a direction for the A cipher')
-    it('if the --config option has a direction other than 0 or 1')
+      await testCliError(fixture, ({ subProcess, suberr }) => {
+        assert.match(suberr, ERR_REG_EXP_.DASHED_CONF_START_ERR)
+        assert.isAbove(subProcess.exitCode, 0)
+      })
+    })
+
+    it('if the --config option is ended with dash', async function () {
+      const fixture = ['--config "A-"', '-c "C1--"']
+
+      await testCliError(fixture, ({ subProcess, suberr }) => {
+        assert.match(suberr, ERR_REG_EXP_.DASHED_CONF_END_ERR)
+        assert.isAbove(subProcess.exitCode, 0)
+      })
+    })
+
+    it('if any command of the --config option has wrong length', async function () {
+      const fixture = ['-c "C13"', '-c R0a']
+
+      await testCliError(fixture, ({ subProcess, suberr }) => {
+        assert.match(suberr, ERR_REG_EXP_.TOO_LONG_COMMAND_ERR)
+        assert.isAbove(subProcess.exitCode, 0)
+      })
+    })
+
+    it('if the --config option has unknown cipher', async function () {
+      const fixture = ['-c "W1"', '-c T0', '-c a']
+
+      await testCliError(fixture, ({ subProcess, suberr }) => {
+        assert.match(suberr, ERR_REG_EXP_.UNKNOWN_CIPHER_ERR)
+        assert.isAbove(subProcess.exitCode, 0)
+      })
+    })
+
+    it('if the --config option has no direction for the C or R cipher', async function () {
+      const fixture = ['-c "C"', '-c R', '-c A-R-A']
+
+      await testCliError(fixture, ({ subProcess, suberr }) => {
+        assert.match(suberr, ERR_REG_EXP_.INVALID_DIRECTION_ERR)
+        assert.isAbove(subProcess.exitCode, 0)
+      })
+    })
+
+    it('if the --config option has a direction for the A cipher', async function () {
+      const fixture = ['-c "A1"']
+
+      await testCliError(fixture, ({ subProcess, suberr }) => {
+        assert.match(suberr, ERR_REG_EXP_.INVALID_DIRECTION_ERR)
+        assert.isAbove(subProcess.exitCode, 0)
+      })
+    })
+
+    it('if the --config option has a direction other than 0 or 1', async function () {
+      const fixture = ['-c "C2"', '-c R3', '-c A-Rs-A']
+
+      await testCliError(fixture, ({ subProcess, suberr }) => {
+        assert.match(suberr, ERR_REG_EXP_.INVALID_DIRECTION_ERR)
+        assert.isAbove(subProcess.exitCode, 0)
+      })
+    })
   })
 
   describe('input', function(){
