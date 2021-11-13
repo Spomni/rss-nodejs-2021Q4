@@ -11,6 +11,10 @@ const ERR_REG_EXP_ = {
   MISS_REQUIRED_OPT_ERR: /MissedRequiredOptionError: the option ".+" must not be missed\n/,
   MISS_OPT_VAL_ERR: /MissedOptionValueError: the option ".+" must has a value\n/,
   DUPLICATED_OPT_ERR: /DuplicatedOptionError: the option ".+" can not be duplicatied\n/,
+  NO_READ_ACCESS_ERR: /NoAccessToReadError: file ".+" can not be readed: check if it exists and you have access to read\n/,
+  INPUT_IS_DIR_ERR: /InputIsDirectoryError: passed input file ".+" is a directory\n/,
+  NO_WRITE_ACCESS_ERR: /NoAccessToWriteError: file ".+" can not be written: check if it exists and you have access to write\n/,
+  OUTPUT_IS_DIR_ERR: /OutputIsDirectoryError: passed output file ".+" is a directory\n/,
 }
 
 async function testFixtureArray(fixture, callback) {
@@ -109,6 +113,7 @@ describe.only('cli', function () {
         assert.isAbove(subProcess.exitCode, 0)
       })
     })
+
     it('if any option or its alias is passed more than one times', async function () {
       const fixture = ['--config A -c R1', '-c A -i a --input d -i a', '-c A --output d -c a']
 
@@ -118,10 +123,41 @@ describe.only('cli', function () {
       })
     })
 
-    it('if input option lead to a non-existent file')
-    it('if input option lead to a directory')
-    it('if output option lead to a non-existent file')
-    it('if input option lead to a directory')
+    it('if input option lead to a non-existent file', async function () {
+      const fixture = ['--config A -i no-file']
+
+      await testFixtureArray(fixture, ({ subProcess, suberr }) => {
+        assert.match(suberr, ERR_REG_EXP_.NO_READ_ACCESS_ERR)
+        assert.isAbove(subProcess.exitCode, 0)
+      })
+    })
+
+    it('if input option lead to a directory', async function () {
+      const fixture = ['--config A -i lib']
+
+      await testFixtureArray(fixture, ({ subProcess, suberr }) => {
+        assert.match(suberr, ERR_REG_EXP_.INPUT_IS_DIR_ERR)
+        assert.isAbove(subProcess.exitCode, 0)
+      })
+    })
+
+    it('if output option lead to a non-existent file', async function () {
+      const fixture = ['--config A -o no-file']
+
+      await testFixtureArray(fixture, ({ subProcess, suberr }) => {
+        assert.match(suberr, ERR_REG_EXP_.NO_WRITE_ACCESS_ERR)
+        assert.isAbove(subProcess.exitCode, 0)
+      })
+    })
+
+    it('if input option lead to a directory', async function () {
+      const fixture = ['--config A -o lib']
+
+      await testFixtureArray(fixture, ({ subProcess, suberr }) => {
+        assert.match(suberr, ERR_REG_EXP_.OUTPUT_IS_DIR_ERR)
+        assert.isAbove(subProcess.exitCode, 0)
+      })
+    })
 
     it('if the --config option is started with dash')
     it('if the --config option is ended with dash')
