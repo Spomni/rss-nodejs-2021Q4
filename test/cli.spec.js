@@ -8,6 +8,8 @@ const ERR_REG_EXP_ = require('./lib/cli-errors-reg-exp')
 const inputPath = 'test/fixture/input'
 const outputPath = 'test/fixture/output'
 
+const ioDelay = 100
+
 async function timeout(ms) {
   return new Promise((resolve, reject) => {
     setTimeout(resolve, ms)
@@ -68,12 +70,17 @@ async function spawnForTest({ execString, handleSpawn, handleClose}) {
         await handleSpawn({ subProcess })
       } catch (err) {
         error = err
+        subProcess.kill()
       }
     })
 
-    subProcess.on('close', (code, signal) => {
+    subProcess.on('close', async (code, signal) => {
       if (error) reject(error)
-      handleClose({ subProcess, error, subout, suberr, code, signal })
+      try {
+        await handleClose({ subProcess, error, subout, suberr, code, signal })
+      } catch (err) {
+        reject(err)
+      }
       resolve()
     })
   })
@@ -322,7 +329,7 @@ describe('cli', function () {
 
           for (let str of toInput) {
             subProcess.stdin.write(str)
-            await timeout(100)
+            await timeout(ioDelay)
           }
 
           subProcess.kill('SIGTERM')
@@ -352,7 +359,7 @@ describe('cli', function () {
         for await (let chunk of input) {
           assert.isFalse(subProcess.killed)
           subProcess.stdin.write(chunk)
-          await timeout(100)
+          await timeout(ioDelay)
         }
 
         subProcess.kill('SIGINT')
@@ -368,9 +375,161 @@ describe('cli', function () {
   });
 
   describe('output', function () {
-    it('Should write to the file if --output or -o options is passed')
-    it('Should not overwrite existing file content')
-    it('Should write to the stdout if the --output option is not passed')
+
+    after(async () => {
+      await fs.writeFile(inputPath, '')
+      await fs.writeFile(outputPath, '')
+    })
+
+    it('Should write to the file if --output or -o options is passed', async function () {
+
+      const fixture = ['asd', 'zhw']
+
+      await fs.writeFile(inputPath, fixture[0])
+      await fs.writeFile(outputPath, '')
+
+      const execString = `node lib/cli.js -c A -i ${inputPath} -o ${outputPath}`
+
+      const handleSpawn = () => {}
+
+      const handleClose = async () => {
+        const outputContent = await fs.readFile(outputPath, 'utf-8')
+        assert.strictEqual(outputContent, fixture[1])
+      }
+
+      await spawnForTest({ execString, handleClose, handleSpawn })
+    })
+
+    it('Should not overwrite existing file content', async function () {
+
+      const fixture = ['asd', 'zhw']
+
+      await fs.writeFile(inputPath, fixture[0])
+      await fs.writeFile(outputPath, fixture[0])
+
+      const execString = `node lib/cli.js -c A -i ${inputPath} -o ${outputPath}`
+
+      const handleSpawn = () => {}
+
+      const handleClose = async () => {
+        const outputContent = await fs.readFile(outputPath, 'utf-8')
+        assert.strictEqual(outputContent, fixture.join(''))
+      }
+
+      await spawnForTest({ execString, handleClose, handleSpawn })
+    })
+
+    it('Should write to the stdout if the --output option is not passed', async function () {
+
+      const inputString = 'abc'
+      const outputString = 'zyx'
+
+      let counter = 0
+
+      await fs.writeFile(inputPath, inputString)
+      await fs.writeFile(outputPath, inputString)
+
+      await spawnForTest({
+
+        execString: `node lib/cli.js -c A --output ${outputPath}`,
+
+        async handleSpawn({ subProcess }) {
+          const inputArray = inputString.split('')
+
+          for (let chunk of inputArray) {
+            subProcess.stdin.write(chunk)
+            await timeout(ioDelay)
+
+            counter += 1
+            const expectedContent = inputString + outputString.slice(0, counter)
+            const outputContent = await fs.readFile(outputPath, 'utf-8')
+
+            assert.strictEqual(outputContent, expectedContent)
+          }
+
+          subProcess.kill('SIGTERM')
+        },
+
+        async handleClose() {
+          assert.strictEqual(counter, 3)
+        }
+      })
+    })
+
+    it('Should write to stdout every times when stdin is pushed', async function () {
+
+      const inputString = 'abc'
+      const outputString = 'zyx'
+
+      let counter = 0
+
+      await spawnForTest({
+
+        execString: `node lib/cli.js -c A`,
+
+        async handleSpawn({ subProcess }) {
+          const inputArray = inputString.split('')
+
+          const handleData = (data) => {
+            try {
+              assert.strictEqual(data.toString(), outputString[counter])
+            } catch (err) {
+              subProcess.stdout.off('data', handleData)
+            }
+            counter += 1
+          }
+
+          subProcess.stdout.on('data', handleData)
+
+          for (let chunk of inputArray) {
+            subProcess.stdin.write(chunk)
+            await timeout(ioDelay)
+          }
+
+          subProcess.kill()
+        },
+
+        async handleClose() {
+          assert.strictEqual(counter, 3)
+        }
+      })
+    })
+
+    it('Should write to the file every times when stdin is pushed', async function () {
+
+      const inputString = 'abc'
+      const outputString = 'zyx'
+
+      let counter = 0
+
+      await fs.writeFile(outputPath, inputString)
+
+      await spawnForTest({
+
+        execString: `node lib/cli.js -c A -o ${outputPath}`,
+
+        async handleSpawn({ subProcess }) {
+          const inputArray = inputString.split('')
+
+          for (let chunk of inputArray) {
+            subProcess.stdin.write(chunk)
+            await timeout(ioDelay)
+
+            counter +=1
+            const expectedContent = inputString + outputString.slice(0, counter)
+            const outputContent = await fs.readFile(outputPath, 'utf-8')
+
+            assert.strictEqual(outputContent, expectedContent)
+          }
+
+          subProcess.kill()
+        },
+
+        async handleClose() {
+          assert.strictEqual(counter, 3)
+        }
+      })
+    })
   })
 
   describe('ciphering', function () {
