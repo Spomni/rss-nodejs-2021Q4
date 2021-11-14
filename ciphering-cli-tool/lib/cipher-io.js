@@ -12,6 +12,12 @@ class InputStream extends Readable {
 
     this._addSourceListeners()
 
+    if (this._source === process.stdin) {
+      process.once('SIGINT', () => {
+        process.stdin.pause()
+      })
+    }
+
     this._source.resume()
   }
 
