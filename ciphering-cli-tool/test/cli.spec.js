@@ -20,7 +20,7 @@ async function testCli(fixture, callback) {
   return Promise.all(
     fixture.map((options) => new Promise((resolve, reject) => {
       const command = `node`
-      const args = ['lib/cli.js', ...options.split(' ')]
+      const args = ['lib/cli', ...options.split(' ')]
 
       const subProcess = spawn(command, args, {
         stdio: ['ignore', 'pipe', 'pipe']
@@ -291,7 +291,7 @@ describe('cli', function () {
 
     it('Should read from the stdin if the --input option is not passed', async function () {
 
-      const execString = 'node lib/cli.js -c A'
+      const execString = 'node lib/cli -c A'
 
       const handleSpawn = async ({ subProcess }) => {
         return new Promise(async (resolve, reject) => {
@@ -317,7 +317,7 @@ describe('cli', function () {
 
     it('Should allow to enter more than one line if reading from standard input', async function () {
 
-      const execString = 'node lib/cli.js -c A'
+      const execString = 'node lib/cli -c A'
 
       const toInput = ['a', 'b', 'c']
 
@@ -356,7 +356,7 @@ describe('cli', function () {
       const input = ['a', 'b', 'c']
       const output = 'zyx'
 
-      const execString = 'node lib/cli.js -c A'
+      const execString = 'node lib/cli -c A'
 
       const handleSpawn = async ({ subProcess }) => {
         let counter = 0
@@ -395,7 +395,7 @@ describe('cli', function () {
       await fs.writeFile(inputPath, fixture[0])
       await fs.writeFile(outputPath, '')
 
-      const execString = `node lib/cli.js -c A -i ${inputPath} -o ${outputPath}`
+      const execString = `node lib/cli -c A -i ${inputPath} -o ${outputPath}`
 
       const handleSpawn = () => {}
 
@@ -414,7 +414,7 @@ describe('cli', function () {
       await fs.writeFile(inputPath, fixture[0])
       await fs.writeFile(outputPath, fixture[0])
 
-      const execString = `node lib/cli.js -c A -i ${inputPath} -o ${outputPath}`
+      const execString = `node lib/cli -c A -i ${inputPath} -o ${outputPath}`
 
       const handleSpawn = () => {}
 
@@ -438,7 +438,7 @@ describe('cli', function () {
 
       await spawnForTest({
 
-        execString: `node lib/cli.js -c A --output ${outputPath}`,
+        execString: `node lib/cli -c A --output ${outputPath}`,
 
         async handleSpawn({ subProcess }) {
           const inputArray = inputString.split('')
@@ -472,7 +472,7 @@ describe('cli', function () {
 
       await spawnForTest({
 
-        execString: `node lib/cli.js -c A`,
+        execString: `node lib/cli -c A`,
 
         async handleSpawn({ subProcess }) {
           const inputArray = inputString.split('')
@@ -513,7 +513,7 @@ describe('cli', function () {
 
       await spawnForTest({
 
-        execString: `node lib/cli.js -c A -o ${outputPath}`,
+        execString: `node lib/cli -c A -o ${outputPath}`,
 
         async handleSpawn({ subProcess }) {
           const inputArray = inputString.split('')
@@ -565,7 +565,7 @@ describe('cli', function () {
 
       await spawnForTest({
 
-        execString: `node lib/cli.js ${options}`,
+        execString: `node lib/cli ${options}`,
 
         async handleSpawn() {
           await timeout(ioDelay)
@@ -588,7 +588,7 @@ describe('cli', function () {
 
       await spawnForTest({
 
-        execString: `node lib/cli.js ${options}`,
+        execString: `node lib/cli ${options}`,
 
         async handleSpawn() {
           await timeout(ioDelay)
@@ -611,7 +611,7 @@ describe('cli', function () {
 
       await spawnForTest({
 
-        execString: `node lib/cli.js ${options}`,
+        execString: `node lib/cli ${options}`,
 
         async handleSpawn() {
           await timeout(ioDelay)
@@ -634,7 +634,7 @@ describe('cli', function () {
 
       await spawnForTest({
 
-        execString: `node lib/cli.js ${options}`,
+        execString: `node lib/cli ${options}`,
 
         async handleSpawn() {
           await timeout(ioDelay)

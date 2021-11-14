@@ -1,6 +1,6 @@
 const { assert } = require('chai')
 
-const { validateCipherOptions } = require('../lib/cli-helpers')
+const { validateCipherOptions } = require('../lib/cli/cli-helpers')
 
 const {
   ValidationError,
@@ -12,13 +12,13 @@ const {
   UnknownCipherError,
   InvalidCipheringDirectionError,
   InvalidCommandLengthError,
-  
+
   NoAccessToReadError,
   InputIsDirectoryError,
-  
+
   NoAccessToWriteError,
   OutputIsDirectoryError,
-} = require('../lib/cli-errors')
+} = require('../lib/cli/cli-errors')
 
 
 describe('cli-helpers', function () {
@@ -28,7 +28,7 @@ describe('cli-helpers', function () {
     describe('config', function () {
 
       describe('Should throw an error instance extending the ValidationError class if the config option is not valid', function () {
-        
+
         const fixture = [
           [undefined, MissedConfigError],
           [{}, ConfigIsNotStringError],
@@ -40,7 +40,7 @@ describe('cli-helpers', function () {
           ['RC', InvalidCipheringDirectionError],
           ['C12', InvalidCommandLengthError],
         ]
-        
+
         fixture.forEach(([config, ErrorClass]) => {
           it(`${ErrorClass.name}`, function () {
             assert.throws(() => validateCipherOptions({ config }), ErrorClass)
@@ -51,12 +51,12 @@ describe('cli-helpers', function () {
 
     describe('input', function () {
       describe('Should throw an error instance extending the ValidationError class if the "input" option is not valid', function () {
-      
+
         const fixture = [
           ['./no-file', NoAccessToReadError],
           ['./lib', InputIsDirectoryError]
         ]
-        
+
         fixture.forEach(([filePath, ErrorClass]) => {
           it(`${ErrorClass.name}`, function () {
             assert.throws(
@@ -70,12 +70,12 @@ describe('cli-helpers', function () {
 
     describe('output', function () {
       describe('Should throw an error instance extending the ValidationError class if the "output" option is not valid', function () {
-      
+
         const fixture = [
           ['./no-file', NoAccessToWriteError],
           ['./lib', OutputIsDirectoryError]
         ]
-        
+
         fixture.forEach(([filePath, ErrorClass]) => {
           it(`${ErrorClass.name}`, function () {
             assert.throws(
