@@ -7,7 +7,7 @@
     "lib": "lib"
   },
   "scripts": {
-    "test": "mocha --reporter=progress"
+    "test": "jest"
   },
   "repository": {
     "type": "git",
