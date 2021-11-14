@@ -7,7 +7,7 @@ module.exports = {
   UNEXPECTED_VAL_ARR_ERR: /UnexpectedValuesArrayError: the option ".+" must be assigned with one value only\n/,
   MISS_REQUIRED_OPT_ERR: /MissedRequiredOptionError: the option ".+" must not be missed\n/,
   MISS_OPT_VAL_ERR: /MissedOptionValueError: the option ".+" must has a value\n/,
-  DUPLICATED_OPT_ERR: /DuplicatedOptionError: the option ".+" can not be duplicatied\n/,
+  DUPLICATED_OPT_ERR: /DuplicatedOptionError: the option ".+" can not be duplicated\n/,
   NO_READ_ACCESS_ERR: /NoAccessToReadError: file ".+" can not be readed: check if it exists and you have access to read\n/,
   INPUT_IS_DIR_ERR: /InputIsDirectoryError: passed input file ".+" is a directory\n/,
   NO_WRITE_ACCESS_ERR: /NoAccessToWriteError: file ".+" can not be written: check if it exists and you have access to write\n/,
