@@ -1,0 +1,1 @@
+require('./ciphering-cli-tool')
