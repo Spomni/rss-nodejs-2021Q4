@@ -303,8 +303,11 @@ describe('cli', function () {
 
           subProcess.stdin.write('asd')
           await timeout(ioDelay * 20)
-          subProcess.kill('SIGTERM')
-          throw new Error('handle spawn timeout')
+
+          if (!subProcess.killed) {
+            subProcess.kill('SIGTERM')
+            throw new Error('handle spawn timeout')
+          }
         })
       }
 
@@ -339,8 +342,10 @@ describe('cli', function () {
             await timeout(ioDelay)
           }
 
-          subProcess.kill('SIGTERM')
-          reject(new Error('handle spawn timeout'))
+          if (!subProcess.killed) {
+            subProcess.kill('SIGTERM')
+            reject(new Error('handle spawn timeout'))
+          }
         })
       }
 
