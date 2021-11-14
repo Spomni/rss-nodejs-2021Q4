@@ -8,7 +8,7 @@ const ERR_REG_EXP_ = require('./lib/cli-errors-reg-exp')
 const inputPath = 'test/fixture/input'
 const outputPath = 'test/fixture/output'
 
-const ioDelay = 100
+const ioDelay = 200
 
 async function timeout(ms) {
   return new Promise((resolve, reject) => {
@@ -271,7 +271,7 @@ describe('cli', function () {
 
   describe('input', function(){
 
-    after(async () => {
+    afterAll(async () => {
       await fs.writeFile(inputPath, '')
       await fs.writeFile(outputPath, '')
     })
@@ -302,7 +302,7 @@ describe('cli', function () {
           })
 
           subProcess.stdin.write('asd')
-          await timeout(1000)
+          await timeout(ioDelay * 20)
           subProcess.kill('SIGTERM')
           throw new Error('handle spawn timeout')
         })
@@ -383,7 +383,7 @@ describe('cli', function () {
 
   describe('output', function () {
 
-    after(async () => {
+    afterAll(async () => {
       await fs.writeFile(inputPath, '')
       await fs.writeFile(outputPath, '')
     })
@@ -540,12 +540,12 @@ describe('cli', function () {
   })
 
   describe('ciphering', function () {
-    it('Should cipher only english alphabet symbols')
+    it.todo('Should cipher only english alphabet symbols')
   })
 
   describe('examples', function () {
 
-    after(async () => {
+    afterAll(async () => {
       await fs.writeFile(inputPath, '')
       await fs.writeFile(outputPath, '')
     })

@@ -13,13 +13,13 @@ const outputPath = path.resolve(__dirname, './fixture/output')
 async function mockStdout(callback) {
   const { stdout } = process
   const output = new PassThrough()
-  
+
   Object.defineProperty(process, 'stdout', {
     writable: true,
     enumarable: true,
     value: output
   })
-  
+
   try {
     await callback(stdout)
   } finally {
@@ -39,7 +39,7 @@ async function timeout(ms) {
 
 describe('cipher', function () {
 
-  after(async () => {
+  afterAll(async () => {
     await fs.writeFile(inputPath, '')
     await fs.writeFile(outputPath, '')
   })
@@ -50,25 +50,24 @@ describe('cipher', function () {
 
       await mockStdout(async (stdout) => {
         cipher({ config: 'A' })
-        
+
         const handleData = spy()
-        
+
         process.stdout.once('data', handleData)
-        
+
         process.stdin.push(`asd`)
+        await timeout(100)
         process.stdin.pause()
-        
-        await timeout(0)
-        
+
         assert(handleData.called)
       })
     })
 
     it('Should read from the file described on the input option', async () => {
       const strArr = ['abc', 'zyx']
-      
+
       await fs.writeFile(inputPath, strArr[0])
-      
+
       await mockStdout((stdout) => {
         process.stdout.once('data', (data) => {
           const string = data.toString()
@@ -86,7 +85,7 @@ describe('cipher', function () {
       const input = 'abc'
       const outputInitial = input
       const outputGoal = outputInitial + 'zyx'
-      
+
       await fs.writeFile(inputPath, input)
       await fs.writeFile(outputPath, outputInitial)
 
@@ -95,9 +94,9 @@ describe('cipher', function () {
         input: inputPath,
         output: outputPath,
       })
-      
+
       await timeout(10)
-      
+
       const outputContent = await fs.readFile(outputPath, 'utf8')
       assert.strictEqual(outputContent, outputGoal)
     })
@@ -108,19 +107,19 @@ describe('cipher', function () {
         ['b', 'azy'],
         ['c', 'azyx']
       ]
-      
+
       await fs.writeFile(outputPath, 'a')
 
       cipher({
         config: 'A',
         output: outputPath,
       })
-      
+
       try {
         for (let [input, output] of strArr) {
           process.stdin.push(input)
           await timeout(10)
-        
+
           const content = await fs.readFile(outputPath, 'utf8')
           assert.strictEqual(content, output)
         }

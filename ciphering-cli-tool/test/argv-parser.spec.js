@@ -21,21 +21,21 @@ const {
 describe('ArgvParser', function () {
 
   describe('exports', function () {
-    it('Should export ArgvParser class')
-    it('Should export an instance as the "parser" property')
+    it.todo('Should export ArgvParser class')
+    it.todo('Should export an instance as the "parser" property')
   })
-  
+
   describe(`constructor()`, function () {
-    it('Should not throw any error')
+    it.todo('Should not throw any error')
   })
 
   describe('.config()', function () {
-  
+
     it('Should throw an error if configuration is not passed', function () {
       const parser = new ArgvParser()
       assert.throws(() => parser.config())
     })
-    
+
     it('Should call the .declare() method if the "declare" option is passed', function () {
       const parser = new ArgvParser()
       const config = { declare: { name: '-c'} }
@@ -82,7 +82,7 @@ describe('ArgvParser', function () {
         ])
       })
     })
-    
+
     it('Should throw an error if the any options name is invalid', function () {
       const parser = new ArgvParser()
       assert.throws(() => parser.declare({ name: '' }))
@@ -94,7 +94,7 @@ describe('ArgvParser', function () {
       assert.throws(() => parser.declare({ name: '--c' }))
       assert.throws(() => parser.declare({ name: '---conf' }))
     })
-    
+
     it('Should throw an error if the alias parameter is not an array of the options names', function () {
       const parser = new ArgvParser()
       assert.throws(() => parser.declare({ name: `--conf`, alias: '-c'}))
@@ -111,10 +111,10 @@ describe('ArgvParser', function () {
       assert.throws(() => parser.declare({ name: '--debug' }))
       assert.throws(() => parser.declare({ name: '-d' }))
     })
-    
+
     it('Should throw an error if both parameters "isFlag" and "isArray" are true', () => {
       const parser = new ArgvParser()
-      
+
       assert.throws(() => parser.declare({
         name: '--debug',
         isFlag: true,
@@ -144,7 +144,7 @@ describe('ArgvParser', function () {
         assert.throws(() => parser.exec(), InvalidOptionsError)
       })
     })
-    
+
     it('Should throw an error if the argv array contains unknown option', async function () {
       const parser = new ArgvParser()
       parser.declare({ name: '--debug' })
@@ -164,7 +164,7 @@ describe('ArgvParser', function () {
         name: '--debug',
         isFlag: true,
       })
-      
+
       await mockArgv(['--debug', 'simple'], () => {
         assert.throws(() => parser.exec(), FlagOptionValueError)
       })
@@ -172,7 +172,7 @@ describe('ArgvParser', function () {
 
     it('Should throw an error if more then one values are passed to the non-array option', async function() {
       const parser = new ArgvParser()
-      
+
       parser.declare({
         name: '--input',
         isFlag: false,
@@ -185,7 +185,7 @@ describe('ArgvParser', function () {
 
     it('Should throw an error if any required option is not passed', async function () {
       const parser = new ArgvParser()
-      
+
       parser.declare([
         {
           name: '--debug',
@@ -197,15 +197,15 @@ describe('ArgvParser', function () {
           isRequired: true
         }
       ])
-      
+
       await mockArgv(['--debug'], () => {
         assert.throws(() => parser.exec(), MissedRequiredOptionError)
       })
     })
-    
+
     it(`Should throw an error if the value of the non-flagable options is not passed`, async function() {
       const parser = new ArgvParser()
-      
+
       parser.declare([
         {
           name: '--debug',
@@ -217,7 +217,7 @@ describe('ArgvParser', function () {
           isRequired: true
         }
       ])
-      
+
       await mockArgv(['--input', '--debug'], () => {
         assert.throws(() => parser.exec(), MissedOptionValueError)
       })
@@ -245,7 +245,7 @@ describe('ArgvParser', function () {
           isFlag: true,
         }
       ])
-      
+
       await mockArgv(['--input', './input', '-c', 'C1'], () => {
         const execRes = parser.exec()
         const getAllRes = parser.getAll()
@@ -253,9 +253,9 @@ describe('ArgvParser', function () {
       })
     })
   })
-  
+
   describe('.getAll()', function () {
-  
+
     const declareConfig = [
       {
         name: '--config',
@@ -271,7 +271,7 @@ describe('ArgvParser', function () {
         isFlag: true,
       }
     ]
-  
+
     it('Should return null if the .exec() method have not been executed', function () {
       const parser = new ArgvParser()
       parser.declare(declareConfig)
@@ -296,7 +296,7 @@ describe('ArgvParser', function () {
     it(`Should return options with their correct values`, async function() {
       const parser = new ArgvParser()
       parser.declare(declareConfig)
-      
+
       await mockArgv(
         ['--debug', '-i', './input', '--config', 'set', 'url'],
         () => parser.exec()
@@ -312,7 +312,7 @@ describe('ArgvParser', function () {
     it('Should copy options values to their aliases.', async function() {
       const parser = new ArgvParser()
       parser.declare(declareConfig)
-      
+
       await mockArgv(
         ['--debug', '-i', './input', '--config', 'set', 'url'],
         () => parser.exec()
@@ -327,35 +327,35 @@ describe('ArgvParser', function () {
     it('Should set missed flag options to false', async function () {
       const parser = new ArgvParser()
       parser.declare(declareConfig)
-      
+
       await mockArgv(
         ['-i', './input', '--config', 'set', 'url'],
         () => parser.exec()
       )
-      
+
       const result = parser.getAll()
-      
+
       assert.strictEqual(result['--debug'], false)
     })
 
     it('Should set missed array options to empty array', async function () {
       const parser = new ArgvParser()
       parser.declare(declareConfig)
-      
+
       await mockArgv(
         ['-i', './input', '--debug'],
         () => parser.exec()
       )
-      
+
       const result = parser.getAll()
-      
+
       assert.deepEqual(result['--config'], [])
     })
 
     it('Should set missed string options to null', async function() {
       const parser = new ArgvParser()
       parser.declare(declareConfig)
-      
+
       await mockArgv(
         ['--debug', '--config', 'set', 'url'],
         () => parser.exec()
