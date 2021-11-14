@@ -1,7 +1,7 @@
 const fs = require('fs')
 const path = require('path')
 
-const { InputError } = require('./argv-parser')
+const { InputError } = require('../argv-parser')
 
 const {
   ValidationError,

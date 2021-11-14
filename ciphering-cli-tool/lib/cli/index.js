@@ -1,5 +1,5 @@
-const { parser } = require('./argv-parser')
-const { cipher } = require('./cipher')
+const { parser } = require('../argv-parser')
+const { cipher } = require('../cipher')
 
 const {
   isInDebugMode,
