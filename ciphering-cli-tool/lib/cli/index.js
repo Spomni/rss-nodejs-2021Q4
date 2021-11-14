@@ -24,14 +24,13 @@ try {
 } catch (err) {
 
   if (isKnownError(err)) {
-    process.stderr.end(err.message + '\n')
+    process.stderr.write(err.message + '\n')
   } else {
-    process.stderr.end(UNKNOWN_ERR_MSG)
+    process.stderr.write(UNKNOWN_ERR_MSG)
   }
 
   if (isInDebugMode()) {
-    console.log('')
-    console.log(err)
+    console.log('\n', err)
   }
 
   process.exit(1)
