@@ -79,7 +79,7 @@ class MissedOptionValueError extends InputError {
 class DuplicatedOptionError extends InputError {
   constructor(alias) {
     const name = alias.filter((name) => name[1] === '-')[0]
-    super(`DuplicatedOptionError: the option "${name}" can not be duplicatied`)
+    super(`DuplicatedOptionError: the option "${name}" can not be duplicated`)
   }
 }
 
