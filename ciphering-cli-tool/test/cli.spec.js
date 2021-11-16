@@ -409,6 +409,8 @@ describe('cli', function () {
       const fixtures = ['A', '_', 'Л']
 
       await spawnToTest({
+      
+        timeout: ioDelay * 2 * 3,
 
         args: `${cliPath} -c C0`.split(' '),
 
@@ -423,8 +425,8 @@ describe('cli', function () {
         },
 
         handleClose({ subout, code }) {
-          expect(subout).toHaveLength(3)
           expect(code).toBe(0)
+          expect(subout).toHaveLength(3)
         },
       })
     })
@@ -626,106 +628,52 @@ describe('cli', function () {
 
   describe('examples', function () {
 
-    afterAll(async () => {
-      await fs.writeFile(inputPath, '')
-      await fs.writeFile(outputPath, '')
-    })
+    beforeEach(async () => await clearIOFiles())
+    
+    it('Should works correct with task examples', async function () {
 
-    this.beforeEach(async () => {
-      await fs.writeFile(inputPath, '')
-      await fs.writeFile(outputPath, '')
-    })
-
-    it(`-c "C1-C1-R0-A" -i "${inputPath}" -o "${outputPath}"`, async () => {
-
-      const options = `-c "C1-C1-R0-A" -i "${inputPath}" -o "${outputPath}"`
       const input = `This is secret. Message about "_" symbol!`
-      const output = `Myxn xn nbdobm. Tbnnfzb ferlm "_" nhteru!`
 
-      await fs.writeFile(inputPath, input)
+      const getArgs = (config) => `${cliPath} -c ${config} -i "${inputPath}" -o "${outputPath}"`.split(' ')
 
-      await spawnForTest({
-
-        execString: `node lib/cli ${options}`,
-
-        async handleSpawn() {
-          await timeout(ioDelay)
+      const fixtures = [
+        {
+          config: `"C1-C1-R0-A"`,
+          output: `Myxn xn nbdobm. Tbnnfzb ferlm "_" nhteru!`,
         },
-
-        async handleClose() {
-          const outputContent = await fs.readFile(outputPath, 'utf-8')
-          assert.strictEqual(outputContent, output)
-        }
-      })
-    })
-
-    it(`-c "C1-C0-A-R1-R0-A-R0-R0-C1-A" -i "${inputPath}" -o "${outputPath}"`, async () => {
-
-      const options = `-c "C1-C0-A-R1-R0-A-R0-R0-C1-A" -i "${inputPath}" -o "${outputPath}"`
-      const input = `This is secret. Message about "_" symbol!`
-      const output = `Vhgw gw wkmxkv. Ckwwoik onauv "_" wqcnad!`
-
-      await fs.writeFile(inputPath, input)
-
-      await spawnForTest({
-
-        execString: `node lib/cli ${options}`,
-
-        async handleSpawn() {
-          await timeout(ioDelay)
+        {
+          config: `"C1-C0-A-R1-R0-A-R0-R0-C1-A"`,
+          output: `Vhgw gw wkmxkv. Ckwwoik onauv "_" wqcnad!`
         },
-
-        async handleClose() {
-          const outputContent = await fs.readFile(outputPath, 'utf-8')
-          assert.strictEqual(outputContent, output)
-        }
-      })
-    })
-
-    it(`-c "A-A-A-R1-R0-R0-R0-C1-C1-A" -i "${inputPath}" -o "${outputPath}"`, async () => {
-
-      const options = `-c "A-A-A-R1-R0-R0-R0-C1-C1-A" -i "${inputPath}" -o "${outputPath}"`
-      const input = `This is secret. Message about "_" symbol!`
-      const output = `Hvwg wg gsqfsh. Asggous opcih "_" gmapcz!`
-
-      await fs.writeFile(inputPath, input)
-
-      await spawnForTest({
-
-        execString: `node lib/cli ${options}`,
-
-        async handleSpawn() {
-          await timeout(ioDelay)
+        {
+          config: `"A-A-A-R1-R0-R0-R0-C1-C1-A"`,
+          output: `Hvwg wg gsqfsh. Asggous opcih "_" gmapcz!`,
         },
-
-        async handleClose() {
-          const outputContent = await fs.readFile(outputPath, 'utf-8')
-          assert.strictEqual(outputContent, output)
-        }
-      })
-    })
-
-    it(`-c "C1-R1-C0-C0-A-R0-R1-R1-A-C1" -i "${inputPath}" -o "${outputPath}"`, async () => {
-
-      const options = `-c "C1-R1-C0-C0-A-R0-R1-R1-A-C1" -i "${inputPath}" -o "${outputPath}"`
-      const input = `This is secret. Message about "_" symbol!`
-      const output = `This is secret. Message about "_" symbol!`
-
-      await fs.writeFile(inputPath, input)
-
-      await spawnForTest({
-
-        execString: `node lib/cli ${options}`,
-
-        async handleSpawn() {
-          await timeout(ioDelay)
+        {
+          config: `"C1-R1-C0-C0-A-R0-R1-R1-A-C1"`,
+          output: `This is secret. Message about "_" symbol!`
         },
-
-        async handleClose() {
-          const outputContent = await fs.readFile(outputPath, 'utf-8')
-          assert.strictEqual(outputContent, output)
-        }
-      })
+      ]
+      
+      await fs.writeFile(inputPath, input)
+      
+      for (let { config, output } of fixtures) {
+        await spawnToTest({
+          
+          args: getArgs(config),
+          
+          async handleClose({ code }) {
+            expect(code).toBe(0)
+            
+            const content = await fs.readFile(outputPath, 'utf-8')
+            expect(content).toBe(output)
+          },
+          
+          async after() {
+            await fs.writeFile(outputPath, '')
+          }
+        })
+      }
     })
   })
 })
