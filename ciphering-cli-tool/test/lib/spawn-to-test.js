@@ -1,5 +1,18 @@
 const { spawn } = require('child_process')
 
+const { RejectionTimer } = require('./rejection-timer')
+
+class TimeoutError extends Error {
+  constructor(timeout) {
+    super(`Exceeded timeout of ${timeout} ms for the spawnToTest() function`)
+  }
+}
+
+function getRejectionTimer(timeout) {
+  const reason = new TimeoutError(timeout)
+  return new RejectionTimer(reason, timeout)
+}
+
 async function onErrorPromise({ subProcess, handleError }) {
 
   if (!handleError) return Promise.resolve()
@@ -57,45 +70,6 @@ async function onClosePromise({ subProcess, handleClose }) {
   })
 }
 
-class TimeoutError extends Error {
-  constructor(timeout) {
-    super(`Exceeded timeout of ${timeout} ms for the spawnToTest() function`)
-  }
-}
-
-class RejectionTimer {
-
-  constructor(reason, timeout) {
-    Object.assign(this, {
-      reason,
-      timeout
-    })
-  }
-
-  start() {
-    return new Promise((resolve, reject) => {
-      const descriptor = setTimeout(() => reject(this.reason), this.timeout)
-
-      this.resolve = (value) => {
-        clearTimeout(descriptor)
-        resolve(value)
-        return this
-      }
-    })
-  }
-
-  resolve(value) {
-    return Promise.resolve(value)
-  }
-}
-
-function getRejectionTimer(timeout) {
-  return new RejectionTimer(
-    new TimeoutError(timeout),
-    timeout
-  )
-}
-
 async function waitClosing({ subProcess }) {
   return new Promise((resolve) => {
     subProcess.on('close', () => resolve())
@@ -111,7 +85,7 @@ async function spawnToTest({
   handleError = null,
 
   timeout = 1000,
-  
+
   before = null,
   after = null
 }) {
