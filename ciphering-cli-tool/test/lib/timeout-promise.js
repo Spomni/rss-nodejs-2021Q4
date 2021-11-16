@@ -4,6 +4,6 @@ async function timeout(ms) {
   })
 }
 
-module.expprts = {
+module.exports = {
   timeout,
 }
