@@ -122,33 +122,13 @@ async function spawnToTest({
   }
 }
 
-async function spawnSeriesToTest({
-  argsSeries,
-  allowRace = false,
-  ...opts
-}) {
-
-  if (allowRace) {
-    return Promise.all(
-      argsSeries.map((args) => spawnToTest(
-        Object.assign({}, opts, args)
-      ))
-    )
+async function spawnSeriesToTest(configArray) {
+  for (let config of configArray) {
+    await spawnToTest(config)
   }
-
-  return new Promise(async (resolve, reject) => {
-    try {
-      for (let args of argsSeries) {
-        await spawnToTest(Object.assign({}, opts, args))
-      }
-
-      resolve()
-    } catch (error) {
-      reject(error)
-    }
-  })
 }
 
 module.exports = {
   spawnToTest,
+  spawnSeriesToTest,
 }
