@@ -108,7 +108,7 @@ async function spawnToTest({
 
   } finally {
 
-    timer.resolve()
+    timer.clear()
     subProcess.kill()
     
     if (after) await after()

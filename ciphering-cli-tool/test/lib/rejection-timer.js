@@ -1,26 +1,42 @@
 class RejectionTimer {
 
   constructor(reason, timeout) {
-    Object.assign(this, {
-      reason,
-      timeout
-    })
+    this._reason = reason
+    this._timeout = timeout
+    this._promise = null
+    this._descriptor = null
+    this._resolve = null
+  }
+  
+  get promise() {
+    return this._promise
   }
 
   start() {
-    return new Promise((resolve, reject) => {
-      const descriptor = setTimeout(() => reject(this.reason), this.timeout)
+  
+    if (!this._promise) {
+      const { _reason, _timeout } = this
 
-      this.resolve = (value) => {
-        clearTimeout(descriptor)
-        resolve(value)
-        return this
-      }
-    })
+      this._promise = new Promise((resolve, reject) => {
+        this._descriptor = setTimeout(() => reject(_reason), _timeout)
+        this._resolve = resolve
+      })
+    }
+
+    return this._promise
   }
 
-  resolve(value) {
-    return Promise.resolve(value)
+  clear() {
+  
+    if (!this._promise) {
+      this._promise = Promise._resolve()
+
+    } else {
+      clearTimeout(this._descriptor)
+      this._resolve()
+    }
+    
+    return this._promise
   }
 }
 
