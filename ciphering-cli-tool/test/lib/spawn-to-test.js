@@ -7,7 +7,7 @@ async function onErrorPromise({ subProcess, handleError }) {
   return new Promise((resolve, reject) => {
 
     subProcess.on('close', () => resolve())
-    
+
     subProcess.on('error', async (error) => {
       try {
         await handleError({ subProcess, error })
@@ -41,7 +41,7 @@ async function onClosePromise({ subProcess, handleClose }) {
 
   let subout = ''
   let suberr = ''
-  
+
   subProcess.stdout.on('data', (data) => subout += data.toString())
   subProcess.stderr.on('data', (data) => suberr += data.toString())
 
@@ -77,7 +77,7 @@ class RejectionTimer {
       timeout
     })
   }
-  
+
   start() {
     return new Promise((resolve, reject) => {
       const descriptor = setTimeout(() => reject(this.reason), this.timeout)
@@ -96,7 +96,7 @@ class RejectionTimer {
 }
 
 async function spawnToTest({
-  command,
+  command = 'node',
   args = [],
   handleSpawn = null,
   handleClose = null,
@@ -120,14 +120,6 @@ async function spawnToTest({
     timer.resolve()
     subProcess.kill()
   }
-}
-
-async function spawnNodeToTest({ ...opts }) {
-  return spawnToTest(
-    Object.assign(opts, {
-      command: 'node' 
-    })
-  )
 }
 
 async function spawnSeriesToTest({
@@ -159,5 +151,4 @@ async function spawnSeriesToTest({
 
 module.exports = {
   spawnToTest,
-  spawnNodeToTest,
 }
