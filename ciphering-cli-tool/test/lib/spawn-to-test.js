@@ -128,7 +128,14 @@ async function spawnSeriesToTest(configArray) {
   }
 }
 
+async function spawnParallelToTest(configArray) {
+  return Promise.all(
+    configArray.map((config) => spawnToTest(config))
+  )
+}
+
 module.exports = {
   spawnToTest,
   spawnSeriesToTest,
+  spawnParallelToTest,
 }
