@@ -96,6 +96,12 @@ function getRejectionTimer(timeout) {
   )
 }
 
+async function waitClosing({ subProcess }) {
+  return new Promise((resolve) => {
+    subProcess.on('close', () => resolve())
+  })
+}
+
 async function spawnToTest({
   command = 'node',
   args = [],
@@ -115,6 +121,7 @@ async function spawnToTest({
         onErrorPromise({ subProcess, handleError }),
         onSpawnPromise({ subProcess, handleSpawn }),
         onClosePromise({ subProcess, handleClose }),
+        waitClosing({ subProcess }),
       ])
     ])
   } finally {
