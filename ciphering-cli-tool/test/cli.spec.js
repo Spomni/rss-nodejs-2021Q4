@@ -12,8 +12,8 @@ const {
 const ERR_REG_EXP_ = require('./lib/cli-errors-reg-exp')
 
 const cliPath = 'lib/cli'
-const inputPath = 'test/fixture/input'
-const outputPath = 'test/fixture/output'
+const inputPath = 'test/fixture/cli-input'
+const outputPath = 'test/fixture/cli-output'
 
 const ioDelay = 200
 
@@ -23,34 +23,14 @@ async function timeout(ms) {
   })
 }
 
-async function testCli(fixture, callback) {
-  return Promise.all(
-    fixture.map((options) => new Promise((resolve, reject) => {
-      const command = `node`
-      const args = ['lib/cli', ...options.split(' ')]
+async function clearIOFiles() {
+  await fs.writeFile(inputPath, '')
+  await fs.writeFile(outputPath, '')
+}
 
-      const subProcess = spawn(command, args, {
-        stdio: ['ignore', 'pipe', 'pipe']
-      })
-
-      let error = null
-      let subout =''
-      let suberr = ''
-
-      subProcess.on('error', (err) => error = err)
-      subProcess.stdout.on('data', (data) => subout += data.toString())
-      subProcess.stderr.on('data', (data) => suberr += data.toString())
-
-      subProcess.on('close', () => {
-        try {
-          callback({ subProcess, error, subout, suberr })
-        } catch (error) {
-          reject(error)
-        }
-        resolve()
-      })
-    }))
-  )
+async function removeIOFiles() {
+  await fs.unlink(inputPath)
+  await fs.unlink(outputPath)
 }
 
 async function spawnForTest({ execString, handleSpawn, handleClose}) {
@@ -101,6 +81,9 @@ async function spawnForTest({ execString, handleSpawn, handleClose}) {
 }
 
 describe('cli', function () {
+
+  beforeEach(async () => await clearIOFiles())
+  afterAll(async () => await removeIOFiles())
 
   describe('Should print to the stderr human friendly errors and should exit with non-zero code:', function () {
 
@@ -379,118 +362,71 @@ describe('cli', function () {
 
   describe('input', function(){
 
-    afterAll(async () => {
-      await fs.writeFile(inputPath, '')
-      await fs.writeFile(outputPath, '')
-    })
+    afterEach(async () => await clearIOFiles())
 
     it('Should read from the file if --input or -i option is passed', async function () {
 
-      const strArr = ['abc', 'zyx']
+      const input = 'aBc'
+      const output = 'zYx'
 
-      await fs.writeFile(inputPath, strArr[0])
+      await fs.writeFile(inputPath, input)
 
-      await testCli([`-c A -i ${inputPath}`], ({ subProcess, subout }) => {
-        assert.strictEqual(subout, strArr[1])
-        assert.strictEqual(subProcess.exitCode, 0)
+      await spawnToTest({
+
+        args: `${cliPath} -c A -i ${inputPath}`.split(' '),
+
+        handleClose({ subout, code }) {
+          expect(subout).toBe(output)
+          expect(code).toBe(0)
+        }
       })
-
     })
 
     it('Should read from the stdin if the --input option is not passed', async function () {
 
-      const execString = 'node lib/cli -c A'
+      const input = 'aBc'
+      const output = 'bCd'
 
-      const handleSpawn = async ({ subProcess }) => {
-        return new Promise(async (resolve, reject) => {
+      await spawnToTest({
 
+        args: `${cliPath} -c C1`.split(' '),
+
+        handleSpawn({ subProcess }) {
+          subProcess.stdin.write(input)
           subProcess.stdout.on('data', () => {
-            subProcess.kill('SIGINT')
-            resolve()
+            subProcess.kill()
           })
+        },
 
-          subProcess.stdin.write('asd')
-          await timeout(ioDelay * 20)
-
-          if (!subProcess.killed) {
-            subProcess.kill('SIGTERM')
-            throw new Error('handle spawn timeout')
-          }
-        })
-      }
-
-      const handleClose = ({ subout }) => {
-        assert.strictEqual(subout, 'zhw')
-      }
-
-      await spawnForTest({ execString, handleSpawn, handleClose})
+        handleClose({ subout }) {
+          expect(subout).toBe(output)
+        }
+      })
     })
 
     it('Should allow to enter more than one line if reading from standard input', async function () {
 
-      const execString = 'node lib/cli -c A'
+      const fixtures = ['A', '_', 'Л']
 
-      const toInput = ['a', 'b', 'c']
+      await spawnToTest({
 
-      const handleSpawn = async ({ subProcess }) => {
-        return new Promise(async (resolve, reject) => {
+        args: `${cliPath} -c C0`.split(' '),
 
-          let counter = 0
-
-          subProcess.stdout.on('data', (data) => {
-            counter += 1
-            if (counter === toInput.length) {
-              subProcess.kill('SIGINT')
-              resolve()
-            }
-          })
-
-          for (let str of toInput) {
-            subProcess.stdin.write(str)
+        async handleSpawn({ subProcess }) {
+          for (let input of fixtures) {
+            subProcess.stdin.write(input)
             await timeout(ioDelay)
           }
 
-          if (!subProcess.killed) {
-            subProcess.kill('SIGTERM')
-            reject(new Error('handle spawn timeout'))
-          }
-        })
-      }
+          subProcess.exitCode = 0
+          subProcess.kill()
+        },
 
-      const handleClose = ({ subProcess, subout }) => {
-        assert.strictEqual(subout, 'zyx')
-      }
-
-      await spawnForTest({ execString, handleSpawn, handleClose})
-    })
-
-    it('Should exit with code 0 if the application is stopped by SIGINT on reading from stdin', async function () {
-
-      const input = ['a', 'b', 'c']
-      const output = 'zyx'
-
-      const execString = 'node lib/cli -c A'
-
-      const handleSpawn = async ({ subProcess }) => {
-        let counter = 0
-
-        subProcess.stdout.on('data', (data) => counter += 1)
-
-        for await (let chunk of input) {
-          assert.isFalse(subProcess.killed)
-          subProcess.stdin.write(chunk)
-          await timeout(ioDelay)
-        }
-
-        subProcess.kill('SIGINT')
-        assert.strictEqual(counter, 3)
-      }
-
-      const handleClose = ({ subout }) => {
-        assert.strictEqual(subout, output)
-      }
-
-      await spawnForTest({ execString, handleSpawn, handleClose })
+        handleClose({ subout, code }) {
+          expect(subout).toHaveLength(3)
+          expect(code).toBe(0)
+        },
+      })
     })
   });
 
