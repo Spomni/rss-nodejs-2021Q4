@@ -2,8 +2,16 @@ const { spawn } = require('child_process')
 const fs = require('fs/promises')
 const { assert } = require('chai')
 
+const {
+  spawnToTest,
+  spawnSeriesToTest,
+  spawnParallelToTest,
+  seriesByArgs,
+} = require('./lib/spawn-to-test')
+
 const ERR_REG_EXP_ = require('./lib/cli-errors-reg-exp')
 
+const cliPath = 'lib/cli'
 const inputPath = 'test/fixture/input'
 const outputPath = 'test/fixture/output'
 
@@ -97,174 +105,275 @@ describe('cli', function () {
   describe('Should print to the stderr human friendly errors and should exit with non-zero code:', function () {
 
     it('if no option is passed', async function () {
-      const fixture = ['']
+      await spawnToTest({
 
-      await testCli(fixture, ({ subProcess, suberr }) => {
-        assert.match(suberr, ERR_REG_EXP_.FIRST_ARG_ERR)
-        assert.isAbove(subProcess.exitCode, 0)
+        args: [`${cliPath}`],
+
+        handleClose({ suberr, code }) {
+          expect(suberr).toMatch(ERR_REG_EXP_.FIRST_ARG_ERR)
+          expect(code).not.toBe(0)
+        }
       })
     })
 
     it('if invalid option name is passed', async function () {
-      const fixture = ['-config', '--i']
+      await spawnParallelToTest(seriesByArgs({
 
-      await testCli(fixture, ({ subProcess, suberr }) => {
-        assert.match(suberr, ERR_REG_EXP_.INVALID_OPT_ERR)
-        assert.isAbove(subProcess.exitCode, 0)
-      })
+        argsSeries: [
+          `${cliPath} -config`,
+          `${cliPath} --i`,
+        ].map((str) => str.split(' ')),
+
+        handleClose({ suberr, code }) {
+          expect(suberr).toMatch(ERR_REG_EXP_.INVALID_OPT_ERR)
+          expect(code).not.toBe(0)
+        }
+      }))
     })
 
     it('if any unknown option is passed', async function () {
-      const fixture = ['--conf', '--price']
+      await spawnParallelToTest(seriesByArgs({
 
-      await testCli(fixture, ({ subProcess, suberr }) => {
-        assert.match(suberr, ERR_REG_EXP_.UNKNOWN_OPT_ERR)
-        assert.isAbove(subProcess.exitCode, 0)
-      })
+        argsSeries: [
+          `${cliPath} -c A --conf`,
+          `${cliPath} -c R1 --price`,
+        ].map((str) => str.split(' ')),
+
+        handleClose({ suberr, code }) {
+          expect(suberr).toMatch(ERR_REG_EXP_.UNKNOWN_OPT_ERR)
+          expect(code).not.toBe(0)
+        }
+      }))
     })
 
     it('if any value passed to the --debug option', async function () {
-      const fixture = ['--debug true']
+      await spawnToTest({
 
-      await testCli(fixture, ({ subProcess, suberr }) => {
-        assert.match(suberr, ERR_REG_EXP_.FLAG_VALUE_ERR)
-        assert.isAbove(subProcess.exitCode, 0)
+        args: `${cliPath} -c C0 --debug true`.split(' '),
+
+        handleClose({ suberr, code }) {
+          expect(suberr).toMatch(ERR_REG_EXP_.FLAG_VALUE_ERR)
+          expect(code).not.toBe(0)
+        }
       })
     })
 
     it('if more than one value passed to to option --config, --input, --output or their aliases', async function () {
-      const fixture = ['--config a b', '-c s d', '--input a b', '-i a s', '--output a a', '-o a s w d']
+      await spawnParallelToTest(seriesByArgs({
 
-      await testCli(fixture, ({ subProcess, suberr }) => {
-        assert.match(suberr, ERR_REG_EXP_.UNEXPECTED_VAL_ARR_ERR)
-        assert.isAbove(subProcess.exitCode, 0)
-      })
+        argsSeries: [
+          `${cliPath} --config a b`,
+          `${cliPath} -c s d`,
+          `${cliPath} --input a b`,
+          `${cliPath} -i a s`,
+          `${cliPath} --output a a`,
+          `${cliPath} -o a s w d`,
+        ].map((str) => str.split(' ')),
+
+        handleClose({ suberr, code }) {
+          expect(suberr).toMatch(ERR_REG_EXP_.UNEXPECTED_VAL_ARR_ERR)
+          expect(code).not.toBe(0)
+        }
+      }))
     })
 
     it('if the option --config is missed', async function () {
-      const fixture = ['--input input.txt']
+      await spawnToTest({
 
-      await testCli(fixture, ({ subProcess, suberr }) => {
-        assert.match(suberr, ERR_REG_EXP_.MISS_REQUIRED_OPT_ERR)
-        assert.isAbove(subProcess.exitCode, 0)
+        args: `${cliPath} --input input.txt`.split(' '),
+
+        handleClose({ suberr, code }) {
+          expect(suberr).toMatch(ERR_REG_EXP_.MISS_REQUIRED_OPT_ERR)
+          expect(code).not.toBe(0)
+        }
       })
     })
 
     it('if no value is passed to option --config, --input or --output', async function () {
-      const fixture = ['--config', '-c A -i', '-c A --output']
+      await spawnParallelToTest(seriesByArgs({
 
-      await testCli(fixture, ({ subProcess, suberr }) => {
-        assert.match(suberr, ERR_REG_EXP_.MISS_OPT_VAL_ERR)
-        assert.isAbove(subProcess.exitCode, 0)
-      })
+        argsSeries: [
+          `${cliPath} --config`,
+          `${cliPath} -c A -i`,
+          `${cliPath} -c A --output`,
+        ].map((str) => str.split(' ')),
+
+        handleClose({ suberr, code }) {
+          expect(suberr).toMatch(ERR_REG_EXP_.MISS_OPT_VAL_ERR)
+          expect(code).not.toBe(0)
+        }
+      }))
     })
 
     it('if any option or its alias is passed more than one times', async function () {
-      const fixture = ['--config A -c R1', '-c A -i a --input d -i a', '-c A --output d -c a']
+      await spawnParallelToTest(seriesByArgs({
 
-      await testCli(fixture, ({ subProcess, suberr }) => {
-        assert.match(suberr, ERR_REG_EXP_.DUPLICATED_OPT_ERR)
-        assert.isAbove(subProcess.exitCode, 0)
-      })
+        argsSeries: [
+          `${cliPath} --config A -c R1`,
+          `${cliPath} -c A -i a --input d -i a`,
+          `${cliPath} -c A --output d -c a`,
+        ].map((str) => str.split(' ')),
+
+        handleClose({ suberr, code }) {
+          expect(suberr).toMatch(ERR_REG_EXP_.DUPLICATED_OPT_ERR)
+          expect(code).not.toBe(0)
+        }
+      }))
     })
 
     it('if input option lead to a non-existent file', async function () {
-      const fixture = ['--config A -i no-file']
+      await spawnToTest({
 
-      await testCli(fixture, ({ subProcess, suberr }) => {
-        assert.match(suberr, ERR_REG_EXP_.NO_READ_ACCESS_ERR)
-        assert.isAbove(subProcess.exitCode, 0)
+        args: `${cliPath} --config A -i no-file`.split(' '),
+
+        handleClose({ suberr, code }) {
+          expect(suberr).toMatch(ERR_REG_EXP_.NO_READ_ACCESS_ERR)
+          expect(code).not.toBe(0)
+        }
       })
     })
 
     it('if input option lead to a directory', async function () {
-      const fixture = ['--config A -i lib']
+      await spawnToTest({
 
-      await testCli(fixture, ({ subProcess, suberr }) => {
-        assert.match(suberr, ERR_REG_EXP_.INPUT_IS_DIR_ERR)
-        assert.isAbove(subProcess.exitCode, 0)
+        args: `${cliPath} --config A -i lib`.split(' '),
+
+        handleClose({ suberr, code }) {
+          expect(suberr).toMatch(ERR_REG_EXP_.INPUT_IS_DIR_ERR)
+          expect(code).not.toBe(0)
+        }
       })
     })
 
     it('if output option lead to a non-existent file', async function () {
-      const fixture = ['--config A -o no-file']
+      await spawnToTest({
 
-      await testCli(fixture, ({ subProcess, suberr }) => {
-        assert.match(suberr, ERR_REG_EXP_.NO_WRITE_ACCESS_ERR)
-        assert.isAbove(subProcess.exitCode, 0)
+        args: `${cliPath} --config A -o no-file`.split(' '),
+
+        handleClose({ suberr, code }) {
+          expect(suberr).toMatch(ERR_REG_EXP_.NO_WRITE_ACCESS_ERR)
+          expect(code).not.toBe(0)
+        }
       })
     })
 
     it('if input option lead to a directory', async function () {
-      const fixture = ['--config A -o lib']
+      await spawnToTest({
 
-      await testCli(fixture, ({ subProcess, suberr }) => {
-        assert.match(suberr, ERR_REG_EXP_.OUTPUT_IS_DIR_ERR)
-        assert.isAbove(subProcess.exitCode, 0)
+        args: `${cliPath} --config A -o lib`.split(' '),
+
+        handleClose({ suberr, code }) {
+          expect(suberr).toMatch(ERR_REG_EXP_.OUTPUT_IS_DIR_ERR)
+          expect(code).not.toBe(0)
+        }
       })
     })
 
     it('if the --config option is started with dash', async function () {
-      const fixture = ['--config "-A"', '-c "-C1"', '-c "--"', '-c "-"']
+      await spawnParallelToTest(seriesByArgs({
 
-      await testCli(fixture, ({ subProcess, suberr }) => {
-        assert.match(suberr, ERR_REG_EXP_.DASHED_CONF_START_ERR)
-        assert.isAbove(subProcess.exitCode, 0)
-      })
+        argsSeries: [
+          `${cliPath} --config "-A"`,
+          `${cliPath} -c "-C1"`,
+          `${cliPath} -c "--"`,
+          `${cliPath} -c "-"`,
+        ].map((str) => str.split(' ')),
+
+        handleClose({ suberr, code }) {
+          expect(suberr).toMatch(ERR_REG_EXP_.DASHED_CONF_START_ERR)
+          expect(code).not.toBe(0)
+        }
+      }))
     })
 
     it('if the --config option is ended with dash', async function () {
-      const fixture = ['--config "A-"', '-c "C1--"']
+      await spawnParallelToTest(seriesByArgs({
 
-      await testCli(fixture, ({ subProcess, suberr }) => {
-        assert.match(suberr, ERR_REG_EXP_.DASHED_CONF_END_ERR)
-        assert.isAbove(subProcess.exitCode, 0)
-      })
+        argsSeries: [
+          `${cliPath} --config "A-"`,
+          `${cliPath} -c "C1--"`,
+        ].map((str) => str.split(' ')),
+
+        handleClose({ suberr, code }) {
+          expect(suberr).toMatch(ERR_REG_EXP_.DASHED_CONF_END_ERR)
+          expect(code).not.toBe(0)
+        }
+      }))
     })
 
     it('if any command of the --config option has wrong length', async function () {
-      const fixture = ['-c "C13"', '-c R0a']
+      await spawnParallelToTest(seriesByArgs({
 
-      await testCli(fixture, ({ subProcess, suberr }) => {
-        assert.match(suberr, ERR_REG_EXP_.TOO_LONG_COMMAND_ERR)
-        assert.isAbove(subProcess.exitCode, 0)
-      })
+        argsSeries: [
+          `${cliPath} -c "C13"`,
+          `${cliPath} -c R0a`,
+        ].map((str) => str.split(' ')),
+
+        handleClose({ suberr, code }) {
+          expect(suberr).toMatch(ERR_REG_EXP_.TOO_LONG_COMMAND_ERR)
+          expect(code).not.toBe(0)
+        }
+      }))
     })
 
     it('if the --config option has unknown cipher', async function () {
-      const fixture = ['-c "W1"', '-c T0', '-c a']
+      await spawnParallelToTest(seriesByArgs({
 
-      await testCli(fixture, ({ subProcess, suberr }) => {
-        assert.match(suberr, ERR_REG_EXP_.UNKNOWN_CIPHER_ERR)
-        assert.isAbove(subProcess.exitCode, 0)
-      })
+        argsSeries: [
+          `${cliPath} -c "W1"`,
+          `${cliPath} -c T0`,
+          `${cliPath} -c a`,
+        ].map((str) => str.split(' ')),
+
+        handleClose({ suberr, code }) {
+          expect(suberr).toMatch(ERR_REG_EXP_.UNKNOWN_CIPHER_ERR)
+          expect(code).not.toBe(0)
+        }
+      }))
     })
 
     it('if the --config option has no direction for the C or R cipher', async function () {
-      const fixture = ['-c "C"', '-c R', '-c A-R-A']
+      await spawnParallelToTest(seriesByArgs({
 
-      await testCli(fixture, ({ subProcess, suberr }) => {
-        assert.match(suberr, ERR_REG_EXP_.INVALID_DIRECTION_ERR)
-        assert.isAbove(subProcess.exitCode, 0)
-      })
+        argsSeries: [
+          `${cliPath} -c "C"`,
+          `${cliPath} -c R`,
+          `${cliPath} -c A-R-A`,
+        ].map((str) => str.split(' ')),
+
+        handleClose({ suberr, code }) {
+          expect(suberr).toMatch(ERR_REG_EXP_.INVALID_DIRECTION_ERR)
+          expect(code).not.toBe(0)
+        }
+      }))
     })
 
     it('if the --config option has a direction for the A cipher', async function () {
-      const fixture = ['-c "A1"']
+      await spawnToTest({
 
-      await testCli(fixture, ({ subProcess, suberr }) => {
-        assert.match(suberr, ERR_REG_EXP_.INVALID_DIRECTION_ERR)
-        assert.isAbove(subProcess.exitCode, 0)
+        args: `${cliPath} -c A1`.split(' '),
+
+        handleClose({ suberr, code }) {
+          expect(suberr).toMatch(ERR_REG_EXP_.INVALID_DIRECTION_ERR)
+          expect(code).not.toBe(0)
+        }
       })
     })
 
     it('if the --config option has a direction other than 0 or 1', async function () {
-      const fixture = ['-c "C2"', '-c R3', '-c A-Rs-A']
+      await spawnParallelToTest(seriesByArgs({
 
-      await testCli(fixture, ({ subProcess, suberr }) => {
-        assert.match(suberr, ERR_REG_EXP_.INVALID_DIRECTION_ERR)
-        assert.isAbove(subProcess.exitCode, 0)
-      })
+        argsSeries: [
+          `${cliPath} -c "C2"`,
+          `${cliPath} -c R3`,
+          `${cliPath} -c A-Rs-A`,
+        ].map((str) => str.split(' ')),
+
+        handleClose({ suberr, code }) {
+          expect(suberr).toMatch(ERR_REG_EXP_.INVALID_DIRECTION_ERR)
+          expect(code).not.toBe(0)
+        }
+      }))
     })
   })
 
