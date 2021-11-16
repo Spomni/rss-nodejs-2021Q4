@@ -136,8 +136,10 @@ async function spawnParallelToTest(configArray) {
 }
 
 function seriesByArgs(config) {
-  const { argsSeries, configRest } = config
-  return argsSeries.map((args) => Object.assign({}, configRest, args))
+  const { argsSeries, ...configRest } = config
+  return argsSeries.map(
+    (args) => Object.assign({}, configRest, { args })
+  )
 }
 
 module.exports = {
