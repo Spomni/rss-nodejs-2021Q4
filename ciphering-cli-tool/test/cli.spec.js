@@ -6,6 +6,8 @@ const {
   seriesByArgs,
 } = require('./lib/spawn-to-test')
 
+const { timeout } = require('./lib/timeout-promise')
+
 const ERR_REG_EXP_ = require('./lib/cli-errors-reg-exp')
 
 const cliPath = 'lib/cli'
@@ -13,12 +15,6 @@ const inputPath = 'test/fixture/cli-input'
 const outputPath = 'test/fixture/cli-output'
 
 const ioDelay = 200
-
-async function timeout(ms) {
-  return new Promise((resolve, reject) => {
-    setTimeout(resolve, ms)
-  })
-}
 
 async function clearIOFiles() {
   await fs.writeFile(inputPath, '')
