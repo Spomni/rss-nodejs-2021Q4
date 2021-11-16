@@ -105,11 +105,18 @@ async function waitClosing({ subProcess }) {
 async function spawnToTest({
   command = 'node',
   args = [],
+  
   handleSpawn = null,
   handleClose = null,
   handleError = null,
+
   timeout = 1000,
+  
+  before = null,
+  after = null
 }) {
+
+  if (before) await before()
 
   const subProcess = spawn(command, args)
   const timer = getRejectionTimer(timeout)
@@ -124,9 +131,13 @@ async function spawnToTest({
         waitClosing({ subProcess }),
       ])
     ])
+
   } finally {
+
     timer.resolve()
     subProcess.kill()
+    
+    if (after) await after()
   }
 }
 
