@@ -1,7 +1,6 @@
-const { spawn, exec } = require('child_process')
+const { spawn } = require('child_process')
 const fs = require('fs/promises')
 const { assert } = require('chai')
-const { createInterface } = require('readline')
 
 const ERR_REG_EXP_ = require('./lib/cli-errors-reg-exp')
 
