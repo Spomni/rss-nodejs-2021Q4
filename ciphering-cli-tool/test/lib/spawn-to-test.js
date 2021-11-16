@@ -1,5 +1,18 @@
 const { spawn } = require('child_process')
 
+const { RejectionTimer } = require('./rejection-timer')
+
+class TimeoutError extends Error {
+  constructor(timeout) {
+    super(`Exceeded timeout of ${timeout} ms for the spawnToTest() function`)
+  }
+}
+
+function getRejectionTimer(timeout) {
+  const reason = new TimeoutError(timeout)
+  return new RejectionTimer(reason, timeout)
+}
+
 async function onErrorPromise({ subProcess, handleError }) {
 
   if (!handleError) return Promise.resolve()
@@ -57,53 +70,27 @@ async function onClosePromise({ subProcess, handleClose }) {
   })
 }
 
-class TimeoutError extends Error {
-  constructor(timeout) {
-    super(`Exceeded timeout of ${timeout} ms for the spawnToTest() function`)
-  }
-}
-
-class RejectionTimer {
-
-  constructor(reason, timeout) {
-    Object.assign(this, {
-      reason,
-      timeout
-    })
-  }
-
-  start() {
-    return new Promise((resolve, reject) => {
-      const descriptor = setTimeout(() => reject(this.reason), this.timeout)
-
-      this.resolve = (value) => {
-        clearTimeout(descriptor)
-        resolve(value)
-        return this
-      }
-    })
-  }
-
-  resolve(value) {
-    return Promise.resolve(value)
-  }
-}
-
-function getRejectionTimer(timeout) {
-  return new RejectionTimer(
-    new TimeoutError(timeout),
-    timeout
-  )
+async function waitClosing({ subProcess }) {
+  return new Promise((resolve) => {
+    subProcess.on('close', () => resolve())
+  })
 }
 
 async function spawnToTest({
   command = 'node',
   args = [],
+  
   handleSpawn = null,
   handleClose = null,
   handleError = null,
+
   timeout = 1000,
+
+  before = null,
+  after = null
 }) {
+
+  if (before) await before()
 
   const subProcess = spawn(command, args)
   const timer = getRejectionTimer(timeout)
@@ -115,11 +102,16 @@ async function spawnToTest({
         onErrorPromise({ subProcess, handleError }),
         onSpawnPromise({ subProcess, handleSpawn }),
         onClosePromise({ subProcess, handleClose }),
+        waitClosing({ subProcess }),
       ])
     ])
+
   } finally {
-    timer.resolve()
+
+    timer.clear()
     subProcess.kill()
+    
+    if (after) await after()
   }
 }
 
@@ -136,8 +128,10 @@ async function spawnParallelToTest(configArray) {
 }
 
 function seriesByArgs(config) {
-  const { argsSeries, configRest } = config
-  return argsSeries.map((args) => Object.assign({}, configRest, args))
+  const { argsSeries, ...configRest } = config
+  return argsSeries.map(
+    (args) => Object.assign({}, configRest, { args })
+  )
 }
 
 module.exports = {
