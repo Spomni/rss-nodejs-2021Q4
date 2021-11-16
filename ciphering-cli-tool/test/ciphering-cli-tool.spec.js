@@ -10,7 +10,7 @@ const { timeout } = require('./lib/timeout-promise')
 
 const ERR_REG_EXP_ = require('./lib/cli-errors-reg-exp')
 
-const cliPath = 'lib/cli'
+const cliPath = 'index'
 const inputPath = 'test/fixture/cli-input'
 const outputPath = 'test/fixture/cli-output'
 
