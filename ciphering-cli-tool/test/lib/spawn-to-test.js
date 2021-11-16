@@ -57,12 +57,6 @@ async function onClosePromise({ subProcess, handleClose }) {
   })
 }
 
-async function rejectAfterDelay(error, delay, cancel) {
-  return new Promise((r, reject) => {
-    setTimeout(() => reject(error), delay)
-  })
-}
-
 class TimeoutError extends Error {
   constructor(timeout) {
     super(`Exceeded timeout of ${timeout} ms for the spawnToTest() function`)
@@ -95,6 +89,13 @@ class RejectionTimer {
   }
 }
 
+function getRejectionTimer(timeout) {
+  return new RejectionTimer(
+    new TimeoutError(timeout),
+    timeout
+  )
+}
+
 async function spawnToTest({
   command = 'node',
   args = [],
@@ -105,7 +106,7 @@ async function spawnToTest({
 }) {
 
   const subProcess = spawn(command, args)
-  const timer = new RejectionTimer(new TimeoutError(timeout), timeout)
+  const timer = getRejectionTimer(timeout)
 
   try {
     await Promise.race([
