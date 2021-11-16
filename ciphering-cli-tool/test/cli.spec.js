@@ -1,10 +1,7 @@
-const { spawn } = require('child_process')
 const fs = require('fs/promises')
-const { assert } = require('chai')
 
 const {
   spawnToTest,
-  spawnSeriesToTest,
   spawnParallelToTest,
   seriesByArgs,
 } = require('./lib/spawn-to-test')
@@ -31,53 +28,6 @@ async function clearIOFiles() {
 async function removeIOFiles() {
   await fs.unlink(inputPath)
   await fs.unlink(outputPath)
-}
-
-async function spawnForTest({ execString, handleSpawn, handleClose}) {
-  return new Promise((resolve, reject) => {
-
-    const command = execString.split(' ')[0]
-    const args = execString.split(' ').filter((v, i) => i > 0)
-
-    const subProcess = spawn(command, args)
-
-    let error = null
-    let subout =''
-    let suberr = ''
-
-    subProcess.on('error', (err) => {
-      error = err
-      subProcess.stdin.end()
-    })
-    subProcess.stdout.on('data', (data) => subout += data.toString())
-    subProcess.stderr.on('data', (data) => suberr += data.toString())
-
-    if (handleSpawn) {
-      subProcess.on('spawn', async () => {
-        try {
-          await handleSpawn({ subProcess })
-        } catch (err) {
-          error = err
-          subProcess.kill()
-        }
-      })
-    }
-
-    subProcess.on('close', async (code, signal) => {
-      if (error) reject(error)
-      if (suberr.length) reject(new Error(suberr))
-
-      if (handleClose) {
-        try {
-          await handleClose({ subProcess, error, subout, suberr, code, signal })
-        } catch (err) {
-          reject(err)
-        }
-      }
-
-      resolve()
-    })
-  })
 }
 
 describe('cli', function () {
