@@ -586,7 +586,42 @@ describe('cli', function () {
   })
 
   describe('ciphering', function () {
-    it.todo('Should cipher only english alphabet symbols')
+  
+    it('Should cipher only english alphabet symbols', async function () {
+      
+      const input = `
+        adfgutvnjihfd hujhfy
+        _/*[](){}<^°¢£~√×}[<©®™
+        паыкгщоппнзжпмипкврщщпм
+        13796322797587535
+      `
+      const output = `
+        spnmyzxfjklnp lyjlnu
+        _/*[](){}<^°¢£~√×}[<©®™
+        паыкгщоппнзжпмипкврщщпм
+        13796322797587535
+      `
+      
+      await spawnToTest({
+        
+        args: `${cliPath} -c R1-C0-A`.split(' '),
+        
+        handleSpawn({ subProcess }) {
+
+          subProcess.stdout.on('data', () => {
+            subProcess.exitCode = 0
+            subProcess.kill()
+          })
+          
+          subProcess.stdin.write(input)
+        },
+        
+        handleClose({ code, subout }) {
+          expect(code).toBe(0)
+          expect(subout).toBe(output)
+        }
+      })
+    })
   })
 
   describe('examples', function () {
