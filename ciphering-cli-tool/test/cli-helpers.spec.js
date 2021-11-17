@@ -6,10 +6,19 @@ const {
   extractCipherOptions,
   killCli,
   writeStderr,
+  validateCipherOptions,
 } = require('../lib/cli/cli-helpers')
 
 const { InputError } = require('../lib/argv-parser')
 const { ValidationError } = require('../lib/cli/cli-validation-errors')
+
+jest.mock('../lib/cli/cli-validate-helpers')
+
+const {
+  validateConfig,
+  validateInput,
+  validateOutput,
+} = require('../lib/cli/cli-validate-helpers')
 
 describe('cli-helpers', function () {
 
@@ -100,8 +109,23 @@ describe('cli-helpers', function () {
   })
 
   describe('validateCipherOptions():', function () {
-    it.todo('Should call the validateInput() function')
-    it.todo('Should call the validateOutput() function')
-    it.todo('Should call the validateConfig() function')
+
+    const input = {}
+    const output = {}
+    const config = {}
+    
+    validateCipherOptions({ input, output, config })
+
+    it('Should call the validateInput() function with input value', function() {
+       expect(validateInput).toHaveBeenCalledWith(input)
+     })
+ 
+    it('Should call the validateOutput() function with output value', function() {
+      expect(validateOutput).toHaveBeenCalledWith(output)
+    })
+
+    it('Should call the validateConfig() function with config value', function() {
+      expect(validateConfig).toHaveBeenCalledWith(config)
+    })
   })
 })
