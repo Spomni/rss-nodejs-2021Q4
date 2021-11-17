@@ -17,7 +17,7 @@ const {
 
   NoAccessToWriteError,
   OutputIsDirectoryError,
-} = require('./cli-validation-errors')
+} = require('./validate-errors')
 
 const configRegExp = /^(([CR][01]|A)-)*([CR][01]|A)$/
 

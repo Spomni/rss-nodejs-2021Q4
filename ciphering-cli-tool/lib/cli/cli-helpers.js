@@ -2,10 +2,11 @@ const {
   validateConfig,
   validateInput,
   validateOutput,
-} = require('./cli-validate-helpers')
+  
+  ValidationError,
+} = require('../validate')
 
 const { InputError } = require('../argv-parser')
-const { ValidationError, } = require('./cli-validation-errors')
 
 function isInDebugMode() {
   return process.argv.includes('--debug')

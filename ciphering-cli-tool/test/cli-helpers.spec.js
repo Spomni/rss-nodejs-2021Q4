@@ -10,15 +10,24 @@ const {
 } = require('../lib/cli/cli-helpers')
 
 const { InputError } = require('../lib/argv-parser')
-const { ValidationError } = require('../lib/cli/cli-validation-errors')
 
-jest.mock('../lib/cli/cli-validate-helpers')
+jest.mock('../lib/validate', () => {
+  const automock = jest.createMockFromModule('../lib/validate')
+  const { ValidationError } = jest.requireActual('../lib/validate')
+
+  return {
+    ...automock,
+    ValidationError,
+  }
+})
 
 const {
   validateConfig,
   validateInput,
   validateOutput,
-} = require('../lib/cli/cli-validate-helpers')
+  
+  ValidationError,
+} = require('../lib/validate')
 
 describe('cli-helpers', function () {
 
@@ -45,6 +54,9 @@ describe('cli-helpers', function () {
     })
 
     it('Should return true if a passed value is an options validation error', function () {
+
+      ValidationError.mockRestore
+
       const error = new ValidationError()
       expect(isKnownError(error)).toBe(true)
     })
