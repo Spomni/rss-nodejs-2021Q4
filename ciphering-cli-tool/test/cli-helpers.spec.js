@@ -18,12 +18,15 @@ describe('cli-helpers', function () {
     it.todo('Should retern null if option is not passed')
   })
   
-  describe('validateCipherOptions', function () {
-  })
-  
   describe('killCli', function () {
+    it.todo('Should call procces.exit() with passed value')
   })
   
   describe('writeStderr', function () {
+    it('Should write passed value to process.stderr')
+    it('Should append passed value with line break')
+  })
+  
+  describe('validateCipherOptions', function () {
   })
 })
