@@ -13,6 +13,9 @@ describe('cli-helpers', function () {
   })
   
   describe('extractCipherOptions', function () {
+    it.todo('Should return object with properties "config", "input", "output"')
+    it.todo('Should return same properties values thats is passed')
+    it.todo('Should retern null if option is not passed')
   })
   
   describe('validateCipherOptions', function () {
