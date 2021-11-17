@@ -1,4 +1,4 @@
-const { parser } = require('../argv-parser')
+const { parser, InputError } = require('../argv-parser')
 const { cipher } = require('../cipher')
 
 const {
@@ -6,11 +6,13 @@ const {
   isKnownError,
   extractCipherOptions,
   validateCipherOptions,
+  killCli,
+  writeStderr,
 } = require('./cli-helpers')
 
 const parserConfig = require('./cli-parser-config')
 
-const UNKNOWN_ERR_MSG = 'Unknown error. For more information, run the application with the --debug option.\n'
+const UNKNOWN_ERR_MSG = 'Unknown error. For more information, run the application with the --debug option.'
 
 function cli() {
   try {
@@ -25,16 +27,18 @@ function cli() {
   } catch (err) {
 
     if (isKnownError(err)) {
-      process.stderr.write(err.message + '\n')
+      writeStderr(err.message)
+      // process.stderr.write(err.message + '\n')
     } else {
-      process.stderr.write(UNKNOWN_ERR_MSG)
+      writeStderr(UNKNOWN_ERR_MSG)
+      // process.stderr.write(UNKNOWN_ERR_MSG)
     }
 
     if (isInDebugMode()) {
       console.log('\n', err)
     }
 
-    process.exit(1)
+    killCli(1)
   }
 }
 

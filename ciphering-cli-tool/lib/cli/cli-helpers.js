@@ -162,9 +162,19 @@ function validateCipherOptions({
   if (output) validateOutputOption(output)
 }
 
+function killCli(code) {
+  process.exit(code)
+}
+
+function writeStderr(message) {
+  process.stderr.write(message + '\n')
+}
+
 module.exports = {
   isInDebugMode,
   isKnownError,
   extractCipherOptions,
   validateCipherOptions,
+  killCli,
+  writeStderr,
 }
