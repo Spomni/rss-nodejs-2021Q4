@@ -1,90 +1,35 @@
-const { assert } = require('chai')
-
-const { validateCipherOptions } = require('../lib/cli/cli-helpers')
-
-const {
-  ValidationError,
-
-  MissedConfigError,
-  ConfigIsNotStringError,
-  DashAtConfigStartError,
-  DashAtConfigEndError,
-  UnknownCipherError,
-  InvalidCipheringDirectionError,
-  InvalidCommandLengthError,
-
-  NoAccessToReadError,
-  InputIsDirectoryError,
-
-  NoAccessToWriteError,
-  OutputIsDirectoryError,
-} = require('../lib/cli/cli-errors')
-
 
 describe('cli-helpers', function () {
 
-  describe('validateCipherOptions()', function () {
-
-    describe('config', function () {
-
-      describe('Should throw an error instance extending the ValidationError class if the config option is not valid', function () {
-
-        const fixture = [
-          [undefined, MissedConfigError],
-          [{}, ConfigIsNotStringError],
-          ['-A', DashAtConfigStartError],
-          ['R1-A-', DashAtConfigEndError],
-          ['as', UnknownCipherError],
-          ['C', InvalidCipheringDirectionError],
-          ['A1', InvalidCipheringDirectionError],
-          ['RC', InvalidCipheringDirectionError],
-          ['C12', InvalidCommandLengthError],
-        ]
-
-        fixture.forEach(([config, ErrorClass]) => {
-          it(`${ErrorClass.name}`, function () {
-            assert.throws(() => validateCipherOptions({ config }), ErrorClass)
-          })
-        })
-      })
-    })
-
-    describe('input', function () {
-      describe('Should throw an error instance extending the ValidationError class if the "input" option is not valid', function () {
-
-        const fixture = [
-          ['./no-file', NoAccessToReadError],
-          ['./lib', InputIsDirectoryError]
-        ]
-
-        fixture.forEach(([filePath, ErrorClass]) => {
-          it(`${ErrorClass.name}`, function () {
-            assert.throws(
-              () => validateCipherOptions({ input: filePath, config: 'A' }),
-              ErrorClass
-            )
-          })
-        })
-      })
-    })
-
-    describe('output', function () {
-      describe('Should throw an error instance extending the ValidationError class if the "output" option is not valid', function () {
-
-        const fixture = [
-          ['./no-file', NoAccessToWriteError],
-          ['./lib', OutputIsDirectoryError]
-        ]
-
-        fixture.forEach(([filePath, ErrorClass]) => {
-          it(`${ErrorClass.name}`, function () {
-            assert.throws(
-              () => validateCipherOptions({ output: filePath, config: 'A' }),
-              ErrorClass
-            )
-          })
-        })
-      })
-    })
+  describe('isInDebugMode():', function () {
+    it.todo('Should return true if the argv array includes the value "--debug"')
+    it.todo('Should return false if the argv array does not include the value "--debug"')
+  })
+  
+  describe('isKnownError():', function () {
+    it.todo('Should return true if a passed value is an argv parsing error')
+    it.todo('Should return true if a passed value is an options validation error')
+    it.todo('Should return false otherwise')
+  })
+  
+  describe('extractCipherOptions', function () {
+    it.todo('Should return object with properties "config", "input", "output"')
+    it.todo('Should return same properties values thats is passed')
+    it.todo('Should retern null if option is not passed')
+  })
+  
+  describe('killCli', function () {
+    it.todo('Should call procces.exit() with passed value')
+  })
+  
+  describe('writeStderr', function () {
+    it.todo('Should write passed value to process.stderr')
+    it.todo('Should append passed value with line break')
+  })
+  
+  describe('validateCipherOptions():', function () {
+    it.todo('Should call the validateInput() function')
+    it.todo('Should call the validateOutput() function')
+    it.todo('Should call the validateConfig() function')
   })
 })
