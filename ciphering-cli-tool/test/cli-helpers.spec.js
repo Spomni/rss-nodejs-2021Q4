@@ -4,6 +4,7 @@ const {
   isInDebugMode,
   isKnownError,
   extractCipherOptions,
+  killCli,
 } = require('../lib/cli/cli-helpers')
 
 const { InputError } = require('../lib/argv-parser')
@@ -70,7 +71,17 @@ describe('cli-helpers', function () {
   })
   
   describe('killCli', function () {
-    it.todo('Should call procces.exit() with passed value')
+  
+    it('Should call procces.exit() with passed value', function () {
+
+      const exitMock = jest.spyOn(global.process, 'exit').mockImplementation(() => {})
+      const value = {}
+
+      killCli(value)
+      expect(exitMock).toHaveBeenCalledWith(value)
+
+      exitMock.mockRestore()
+    })
   })
   
   describe('writeStderr', function () {
