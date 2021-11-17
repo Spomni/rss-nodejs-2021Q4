@@ -3,6 +3,7 @@ const mockArgv = require('mock-argv')
 const {
   isInDebugMode,
   isKnownError,
+  extractCipherOptions,
 } = require('../lib/cli/cli-helpers')
 
 const { InputError } = require('../lib/argv-parser')
@@ -45,9 +46,27 @@ describe('cli-helpers', function () {
   })
   
   describe('extractCipherOptions', function () {
-    it.todo('Should return object with properties "config", "input", "output"')
-    it.todo('Should return same properties values thats is passed')
-    it.todo('Should retern null if option is not passed')
+
+    it('Should return object with properties "config", "input", "output"', function () {
+      const cipherOpts = extractCipherOptions({})
+      expect(cipherOpts).toHaveProperty('config')
+      expect(cipherOpts).toHaveProperty('input')
+      expect(cipherOpts).toHaveProperty('output')
+    })
+
+    it('Should return the same properties values thats is passed', function () {
+      const cliOpts = {
+        '--config': {},
+        '--input': {},
+        '--outpur': {},
+      }
+      
+      const cipherOpts = extractCipherOptions(cliOpts)
+
+      expect(cipherOpts.config).toBe(cliOpts['--config'])
+      expect(cipherOpts.input).toBe(cliOpts['--input'])
+      expect(cipherOpts.output).toBe(cliOpts['--output'])
+    })
   })
   
   describe('killCli', function () {
