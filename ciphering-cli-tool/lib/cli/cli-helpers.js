@@ -19,7 +19,7 @@ const {
 
   NoAccessToWriteError,
   OutputIsDirectoryError,
-} = require('./cli-errors')
+} = require('./cli-validation-errors')
 
 function isInDebugMode() {
   return process.argv.includes('--debug')
