@@ -1,9 +1,24 @@
+const mockArgv = require('mock-argv')
+
+const {
+  isInDebugMode,
+} = require('../lib/cli/cli-helpers')
 
 describe('cli-helpers', function () {
 
   describe('isInDebugMode():', function () {
-    it.todo('Should return true if the argv array includes the value "--debug"')
-    it.todo('Should return false if the argv array does not include the value "--debug"')
+
+    it('Should return true if the argv array includes the value "--debug"', async function () {
+      await mockArgv(['--debug'], () => {
+        expect(isInDebugMode()).toBe(true)
+      })
+    })
+
+    it('Should return false if the argv array does not include the value "--debug"', async function () {
+      await mockArgv([], () => {
+        expect(isInDebugMode()).toBe(false)
+      })
+    })
   })
   
   describe('isKnownError():', function () {
