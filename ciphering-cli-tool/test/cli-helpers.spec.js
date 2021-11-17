@@ -1,90 +1,131 @@
-const { assert } = require('chai')
-
-const { validateCipherOptions } = require('../lib/cli/cli-helpers')
+const mockArgv = require('mock-argv')
 
 const {
-  ValidationError,
+  isInDebugMode,
+  isKnownError,
+  extractCipherOptions,
+  killCli,
+  writeStderr,
+  validateCipherOptions,
+} = require('../lib/cli/cli-helpers')
 
-  MissedConfigError,
-  ConfigIsNotStringError,
-  DashAtConfigStartError,
-  DashAtConfigEndError,
-  UnknownCipherError,
-  InvalidCipheringDirectionError,
-  InvalidCommandLengthError,
+const { InputError } = require('../lib/argv-parser')
+const { ValidationError } = require('../lib/cli/cli-validation-errors')
 
-  NoAccessToReadError,
-  InputIsDirectoryError,
+jest.mock('../lib/cli/cli-validate-helpers')
 
-  NoAccessToWriteError,
-  OutputIsDirectoryError,
-} = require('../lib/cli/cli-errors')
-
+const {
+  validateConfig,
+  validateInput,
+  validateOutput,
+} = require('../lib/cli/cli-validate-helpers')
 
 describe('cli-helpers', function () {
 
-  describe('validateCipherOptions()', function () {
+  describe('isInDebugMode():', function () {
 
-    describe('config', function () {
-
-      describe('Should throw an error instance extending the ValidationError class if the config option is not valid', function () {
-
-        const fixture = [
-          [undefined, MissedConfigError],
-          [{}, ConfigIsNotStringError],
-          ['-A', DashAtConfigStartError],
-          ['R1-A-', DashAtConfigEndError],
-          ['as', UnknownCipherError],
-          ['C', InvalidCipheringDirectionError],
-          ['A1', InvalidCipheringDirectionError],
-          ['RC', InvalidCipheringDirectionError],
-          ['C12', InvalidCommandLengthError],
-        ]
-
-        fixture.forEach(([config, ErrorClass]) => {
-          it(`${ErrorClass.name}`, function () {
-            assert.throws(() => validateCipherOptions({ config }), ErrorClass)
-          })
-        })
+    it('Should return true if the argv array includes the value "--debug"', async function () {
+      await mockArgv(['--debug'], () => {
+        expect(isInDebugMode()).toBe(true)
       })
     })
 
-    describe('input', function () {
-      describe('Should throw an error instance extending the ValidationError class if the "input" option is not valid', function () {
-
-        const fixture = [
-          ['./no-file', NoAccessToReadError],
-          ['./lib', InputIsDirectoryError]
-        ]
-
-        fixture.forEach(([filePath, ErrorClass]) => {
-          it(`${ErrorClass.name}`, function () {
-            assert.throws(
-              () => validateCipherOptions({ input: filePath, config: 'A' }),
-              ErrorClass
-            )
-          })
-        })
+    it('Should return false if the argv array does not include the value "--debug"', async function () {
+      await mockArgv([], () => {
+        expect(isInDebugMode()).toBe(false)
       })
     })
+  })
+  
+  describe('isKnownError():', function () {
 
-    describe('output', function () {
-      describe('Should throw an error instance extending the ValidationError class if the "output" option is not valid', function () {
+    it('Should return true if a passed value is an argv parsing error', function () {
+      const error = new InputError()
+      expect(isKnownError(error)).toBe(true)
+    })
 
-        const fixture = [
-          ['./no-file', NoAccessToWriteError],
-          ['./lib', OutputIsDirectoryError]
-        ]
+    it('Should return true if a passed value is an options validation error', function () {
+      const error = new ValidationError()
+      expect(isKnownError(error)).toBe(true)
+    })
 
-        fixture.forEach(([filePath, ErrorClass]) => {
-          it(`${ErrorClass.name}`, function () {
-            assert.throws(
-              () => validateCipherOptions({ output: filePath, config: 'A' }),
-              ErrorClass
-            )
-          })
-        })
+    it('Should return false otherwise', function () {
+      ;[null, new Error, 'error', {}].forEach((error) => {
+        expect(isKnownError(error)).toBe(false)
       })
+    })
+  })
+  
+  describe('extractCipherOptions():', function () {
+
+    it('Should return object with properties "config", "input", "output"', function () {
+      const cipherOpts = extractCipherOptions({})
+      expect(cipherOpts).toHaveProperty('config')
+      expect(cipherOpts).toHaveProperty('input')
+      expect(cipherOpts).toHaveProperty('output')
+    })
+
+    it('Should return the same properties values thats is passed', function () {
+      const cliOpts = {
+        '--config': {},
+        '--input': {},
+        '--outpur': {},
+      }
+      
+      const cipherOpts = extractCipherOptions(cliOpts)
+
+      expect(cipherOpts.config).toBe(cliOpts['--config'])
+      expect(cipherOpts.input).toBe(cliOpts['--input'])
+      expect(cipherOpts.output).toBe(cliOpts['--output'])
+    })
+  })
+  
+  describe('killCli():', function () {
+  
+    it('Should call procces.exit() with passed value', function () {
+
+      const exitMock = jest.spyOn(global.process, 'exit').mockImplementation(() => {})
+      const value = {}
+
+      killCli(value)
+      expect(exitMock).toHaveBeenCalledWith(value)
+
+      exitMock.mockRestore()
+    })
+  })
+  
+  describe('writeStderr():', function () {
+
+    it('Should write passed value to process.stderr with trailng line break', function () {
+
+      const stderrWriteMock = jest.spyOn(process.stderr, 'write').mockImplementation(() => {})
+      const value = 'message'
+
+      writeStderr(value)
+      expect(stderrWriteMock).toHaveBeenCalledWith(value + '\n')
+
+      stderrWriteMock.mockRestore()
+    })
+  })
+
+  describe('validateCipherOptions():', function () {
+
+    const input = {}
+    const output = {}
+    const config = {}
+    
+    validateCipherOptions({ input, output, config })
+
+    it('Should call the validateInput() function with input value', function() {
+       expect(validateInput).toHaveBeenCalledWith(input)
+     })
+ 
+    it('Should call the validateOutput() function with output value', function() {
+      expect(validateOutput).toHaveBeenCalledWith(output)
+    })
+
+    it('Should call the validateConfig() function with config value', function() {
+      expect(validateConfig).toHaveBeenCalledWith(config)
     })
   })
 })
