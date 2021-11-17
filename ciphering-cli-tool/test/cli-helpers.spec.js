@@ -23,10 +23,13 @@ describe('cli-helpers', function () {
   })
   
   describe('writeStderr', function () {
-    it('Should write passed value to process.stderr')
-    it('Should append passed value with line break')
+    it.todo('Should write passed value to process.stderr')
+    it.todo('Should append passed value with line break')
   })
   
-  describe('validateCipherOptions', function () {
+  describe('validateCipherOptions():', function () {
+    it.todo('Should call the validateInput() function')
+    it.todo('Should call the validateOutput() function')
+    it.todo('Should call the validateConfig() function')
   })
 })
