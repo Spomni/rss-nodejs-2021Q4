@@ -5,6 +5,7 @@ const {
   isKnownError,
   extractCipherOptions,
   killCli,
+  writeStderr,
 } = require('../lib/cli/cli-helpers')
 
 const { InputError } = require('../lib/argv-parser')
@@ -46,7 +47,7 @@ describe('cli-helpers', function () {
     })
   })
   
-  describe('extractCipherOptions', function () {
+  describe('extractCipherOptions():', function () {
 
     it('Should return object with properties "config", "input", "output"', function () {
       const cipherOpts = extractCipherOptions({})
@@ -70,7 +71,7 @@ describe('cli-helpers', function () {
     })
   })
   
-  describe('killCli', function () {
+  describe('killCli():', function () {
   
     it('Should call procces.exit() with passed value', function () {
 
@@ -84,11 +85,20 @@ describe('cli-helpers', function () {
     })
   })
   
-  describe('writeStderr', function () {
-    it.todo('Should write passed value to process.stderr')
-    it.todo('Should append passed value with line break')
+  describe('writeStderr():', function () {
+
+    it('Should write passed value to process.stderr with trailng line break', function () {
+
+      const stderrWriteMock = jest.spyOn(process.stderr, 'write').mockImplementation(() => {})
+      const value = 'message'
+
+      writeStderr(value)
+      expect(stderrWriteMock).toHaveBeenCalledWith(value + '\n')
+
+      stderrWriteMock.mockRestore()
+    })
   })
-  
+
   describe('validateCipherOptions():', function () {
     it.todo('Should call the validateInput() function')
     it.todo('Should call the validateOutput() function')
