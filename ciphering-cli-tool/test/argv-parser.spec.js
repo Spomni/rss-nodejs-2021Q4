@@ -16,7 +16,7 @@ const {
   UnexpectedValuesArrayError,
   MissedRequiredOptionError,
   MissedOptionValueError,
-} = require('../lib/argv-parser-errors')
+} = require('../lib/argv-parser/argv-parser-errors')
 
 describe('ArgvParser', function () {
 
