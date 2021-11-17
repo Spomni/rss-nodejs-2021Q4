@@ -2,7 +2,11 @@ const mockArgv = require('mock-argv')
 
 const {
   isInDebugMode,
+  isKnownError,
 } = require('../lib/cli/cli-helpers')
+
+const { InputError } = require('../lib/argv-parser')
+const { ValidationError } = require('../lib/cli/cli-validation-errors')
 
 describe('cli-helpers', function () {
 
@@ -22,9 +26,22 @@ describe('cli-helpers', function () {
   })
   
   describe('isKnownError():', function () {
-    it.todo('Should return true if a passed value is an argv parsing error')
-    it.todo('Should return true if a passed value is an options validation error')
-    it.todo('Should return false otherwise')
+
+    it('Should return true if a passed value is an argv parsing error', function () {
+      const error = new InputError()
+      expect(isKnownError(error)).toBe(true)
+    })
+
+    it('Should return true if a passed value is an options validation error', function () {
+      const error = new ValidationError()
+      expect(isKnownError(error)).toBe(true)
+    })
+
+    it('Should return false otherwise', function () {
+      ;[null, new Error, 'error', {}].forEach((error) => {
+        expect(isKnownError(error)).toBe(false)
+      })
+    })
   })
   
   describe('extractCipherOptions', function () {
