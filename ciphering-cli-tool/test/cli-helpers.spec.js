@@ -6,7 +6,10 @@ describe('cli-helpers', function () {
     it.todo('Should return false if the argv array does not include the value "--debug"')
   })
   
-  describe('isKnownError', function () {
+  describe('isKnownError():', function () {
+    it.todo('Should return true if a passed value is an argv parsing error')
+    it.todo('Should return true if a passed value is an options validation error')
+    it.todo('Should return false otherwise')
   })
   
   describe('extractCipherOptions', function () {
