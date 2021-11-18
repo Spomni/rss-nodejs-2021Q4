@@ -56,6 +56,7 @@ describe('ArgvParser', function () {
       const parser = new ArgvParser()
       const config = { declare: { name: '-c'} }
 
+      expect(parser.config({})).toBe(parser)
       expect(parser.config(config)).toBe(parser)
     })
   })
