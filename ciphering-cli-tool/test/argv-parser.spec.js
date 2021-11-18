@@ -1,3 +1,8 @@
+const mockProps = require('jest-mock-props')
+mockProps.extend(jest);
+
+const { mockArgv } = require('./lib/mock-argv')
+
 const {
   ArgvParser,
   ArgvParserError,
@@ -13,6 +18,16 @@ const {
   MissedRequiredOptionError,
   MissedOptionValueError,
 } = require('../lib/argv-parser/argv-parser-errors')
+
+function testInputError(fixtures, ErrorClass, parser = null) {
+  const parserToExec = parser || new ArgvParser()
+
+  fixtures.forEach((argv) => {
+    mockArgv(argv, () => {
+      expect(() => parserToExec.exec()).toThrow(ErrorClass)
+    })
+  })
+}
 
 describe('ArgvParser', function () {
 
@@ -133,39 +148,38 @@ describe('ArgvParser', function () {
 
   describe('.exec()', function () {
 
-    it.skip('Should throw an error if the third argv item is not option', async function () {
+    it('Should throw an error if the third argv item is not option', function () {
       const parser = new ArgvParser()
-      await mockArgv(['debug'], () => {
-        assert.throws(() => parser.exec(), InputError)
-      })
-      await mockArgv(['debug'], () => {
-        assert.throws(() => parser.exec(), FirstArgumentError)
+
+      mockArgv(['debug'], () => {
+        expect(() => parser.exec()).toThrow(FirstArgumentError)
       })
     })
 
-    it.skip('Should throw an error if the argv array contains not valid option name', async function() {
-      const parser = new ArgvParser()
-      await mockArgv(['--conf', '-debug'], () => {
-        assert.throws(() => parser.exec(), InputError)
-      })
-      await mockArgv(['-c', 'a', `--d`], () => {
-        assert.throws(() => parser.exec(), InvalidOptionsError)
-      })
+    it('Should throw an error if the argv array contains not valid option name', function() {
+
+      const fixtures = [
+        ['--conf', '-debug'],
+        ['-c', 'a', `--d`]
+      ]
+
+      testInputError(fixtures, InvalidOptionsError)
     })
 
-    it.skip('Should throw an error if the argv array contains unknown option', async function () {
+    it('Should throw an error if the argv array contains unknown option', async function () {
+
       const parser = new ArgvParser()
       parser.declare({ name: '--debug' })
 
-      await mockArgv(['--conf', '--debug'], () => {
-        assert.throws(() => parser.exec(), UnknownOptionNameError)
-      })
-      await mockArgv(['-c', '--debug'], () => {
-        assert.throws(() => parser.exec(), UnknownOptionNameError)
-      })
+      const fixtures = [
+        ['--conf', '--debug'],
+        ['-c', '--debug']
+      ]
+
+      testInputError(fixtures, UnknownOptionNameError, parser)
     })
 
-    it.skip('Should throw an error if the some value is passed to the flag option', async function() {
+    it('Should throw an error if the some value is passed to the flag option', async function() {
       const parser = new ArgvParser()
 
       parser.declare({
@@ -173,12 +187,12 @@ describe('ArgvParser', function () {
         isFlag: true,
       })
 
-      await mockArgv(['--debug', 'simple'], () => {
-        assert.throws(() => parser.exec(), FlagOptionValueError)
+      mockArgv(['--debug', 'value'], () => {
+        expect(() => parser.exec()).toThrow(FlagOptionValueError)
       })
     })
 
-    it.skip('Should throw an error if more then one values are passed to the non-array option', async function() {
+    it('Should throw an error if more then one values are passed to the non-array option', async function() {
       const parser = new ArgvParser()
 
       parser.declare({
@@ -186,12 +200,12 @@ describe('ArgvParser', function () {
         isFlag: false,
       })
 
-      await mockArgv(['--input', './in.js', 'stdin'], () => {
-        assert.throws(() => parser.exec(), UnexpectedValuesArrayError)
+      mockArgv(['--input', './in.js', 'stdin'], () => {
+        expect(() => parser.exec()).toThrow(UnexpectedValuesArrayError)
       })
     })
 
-    it.skip('Should throw an error if any required option is not passed', async function () {
+    it('Should throw an error if any required option is not passed', async function () {
       const parser = new ArgvParser()
 
       parser.declare([
@@ -206,12 +220,12 @@ describe('ArgvParser', function () {
         }
       ])
 
-      await mockArgv(['--debug'], () => {
-        assert.throws(() => parser.exec(), MissedRequiredOptionError)
+      mockArgv(['--debug'], () => {
+        expect(() => parser.exec()).toThrow(MissedRequiredOptionError)
       })
     })
 
-    it.skip(`Should throw an error if the value of the non-flagable options is not passed`, async function() {
+    it(`Should throw an error if the value of the non-flagable options is not passed`, async function() {
       const parser = new ArgvParser()
 
       parser.declare([
@@ -226,39 +240,26 @@ describe('ArgvParser', function () {
         }
       ])
 
-      await mockArgv(['--input', '--debug'], () => {
-        assert.throws(() => parser.exec(), MissedOptionValueError)
+      mockArgv(['--input', '--debug'], () => {
+        expect(() => parser.exec()).toThrow(MissedOptionValueError)
       })
     })
 
-    it.skip('Should return a result of the .getAll() method', async function () {
+    it('Should return a result of the .getAll() method', async function () {
       const parser = new ArgvParser()
+      parser.declare({ name: '--debug', isFlag: true })
 
-      parser.declare([
-        {
-          name: '--config',
-          alias: ['-c'],
-          isRequired: true,
-        },
-        {
-          name: '--input',
-          alias: ['-i'],
-        },
-        {
-          name: '--output',
-          alias: ['-o'],
-        },
-        {
-          name: '--debug',
-          isFlag: true,
-        }
-      ])
+      const getAllResult = {}
 
-      await mockArgv(['--input', './input', '-c', 'C1'], () => {
-        const execRes = parser.exec()
-        const getAllRes = parser.getAll()
-        assert.deepEqual(execRes, getAllRes)
+      const getAllMock = jest
+        .spyOn(parser, 'getAll')
+        .mockReturnValue(getAllResult)
+
+      mockArgv(['--debug'], () => {
+        expect(parser.exec()).toBe(getAllResult)
       })
+
+      getAllMock.mockRestore()
     })
   })
 
