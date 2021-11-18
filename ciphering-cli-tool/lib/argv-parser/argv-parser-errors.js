@@ -2,23 +2,23 @@ class ArgvParserError extends Error {}
 class InputError extends ArgvParserError {}
 
 class InvalidArgumentError extends ArgvParserError {
-  constructor(...args) {
+  constructor(arg) {
     super('InvalidArgumentError: unexpected value ')
-    if (args.length) this.message += args[0]
+    if (arg) this.message += arg
   }
 }
 
 class InvalidNameDeclarationError extends ArgvParserError {
-  constructor(...args) {
+  constructor(arg) {
     super('InvalidNameDeclarationError: option name must match to the pattern /(^-\w$)|(^--\w[\-\w]+$)/.')
-    if (args.length) this.message += 'Found incorect name: ' + args[0]
+    if (arg) this.message += 'Found incorect name: ' + arg
   }
 }
 
 class InvalidAliasDeclarationError extends ArgvParserError {
-  constructor(...args) {
+  constructor(arg) {
     super(`InvalidAliasDeclarationError: alias must be an array of the option names.`)
-    if (args.length) this.message += 'Found incorect alias: ' + args[0]
+    this.message += 'Found incorect alias: ' + arg
   }
 }
 
