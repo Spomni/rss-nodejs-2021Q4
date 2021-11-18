@@ -32,78 +32,102 @@ describe('ArgvParser', function () {
 
       parser.config({ declare })
       expect(spy).toHaveBeenCalledWith(declare)
-      
+
       spy.mockRestore()
     })
 
     it('Should return this ArgvParser instance', function () {
       const parser = new ArgvParser()
       const config = { declare: { name: '-c'} }
- 
+
       expect(parser.config(config)).toBe(parser)
     })
   })
 
   describe('.declare()', function () {
 
-    it.skip('Should throw an error if the argument is not object or array', function () {
+    it('Should throw an error if the argument is not object or array', function () {
       const parser = new ArgvParser()
 
-      assert.throws(() => parser.declare())
-      assert.throws(() => parser.declare(3))
-      assert.throws(() => parser.declare('str'))
+      ;[undefined, null, 3, 'str']
+        .forEach((declare) => {
+          expect(() => parser.declare(declare)).toThrow(ArgvParserError)
+        })
 
-      assert.doesNotThrow(() => parser.declare({ name: '--option' }))
-      assert.doesNotThrow(() => parser.declare([{ name: '-o' }]))
+      ;[{ name: '--option'}, [{ name: '-o' }]]
+        .forEach((declare) => {
+          expect(() => parser.declare(declare)).not.toThrow(declare)
+        })
     })
 
-    it.skip('Should throw an error if any option does not have the "name" property ', function () {
+    it('Should throw an error if any option does not have the "name" property ', function () {
       const parser = new ArgvParser()
-      assert.throws(() => {
-        parser.declare([
-          { name: `--option` },
-          { isFlag: true }
-        ])
+
+      const tryDeclare = () => parser.declare([
+        { name: `--option` },
+        { isFlag: true }
+      ])
+
+      expect(tryDeclare).toThrow(ArgvParserError)
+    })
+
+    it('Should throw an error if the any options name is invalid', function () {
+      const parser = new ArgvParser()
+
+      ;[
+        { name: '' },
+        { name: 'o' },
+        { name: '-' },
+        { name: '--' },
+        { name: '---' },
+        { name: '-cc' },
+        { name: '--c' },
+        { name: '---conf' },
+
+      ].forEach((arg) => {
+        expect(() => parser.declare(arg)).toThrow(ArgvParserError)
       })
     })
 
-    it.skip('Should throw an error if the any options name is invalid', function () {
+    it('Should throw an error if the alias parameter is not an array of the options names', function () {
       const parser = new ArgvParser()
-      assert.throws(() => parser.declare({ name: '' }))
-      assert.throws(() => parser.declare({ name: 'o' }))
-      assert.throws(() => parser.declare({ name: '-' }))
-      assert.throws(() => parser.declare({ name: '--' }))
-      assert.throws(() => parser.declare({ name: '---' }))
-      assert.throws(() => parser.declare({ name: '-cc' }))
-      assert.throws(() => parser.declare({ name: '--c' }))
-      assert.throws(() => parser.declare({ name: '---conf' }))
+
+      ;[
+        { name: `--conf`, alias: '-c' },
+        { name: `--conf`, alias: ['-'] },
+        { name: `--conf`, alias: ['asd'] },
+
+      ].forEach((arg) => {
+        expect(() => parser.declare(arg)).toThrow(ArgvParserError)
+      })
     })
 
-    it.skip('Should throw an error if the alias parameter is not an array of the options names', function () {
-      const parser = new ArgvParser()
-      assert.throws(() => parser.declare({ name: `--conf`, alias: '-c'}))
-      assert.throws(() => parser.declare({ name: `--conf`, alias: ['-']}))
-    })
-
-    it.skip('Should throw an error if a passed option name has already been declared or aliased', function () {
+    it('Should throw an error if a passed option name has already been declared or aliased', function () {
       const parser = new ArgvParser()
       parser.declare({
         name: '--debug',
         alias: ['-d']
       })
 
-      assert.throws(() => parser.declare({ name: '--debug' }))
-      assert.throws(() => parser.declare({ name: '-d' }))
+      ;[
+        { name: '--debug' },
+        { name: '-d' },
+
+      ].forEach((arg) => {
+        expect(() => parser.declare(arg)).toThrow(ArgvParserError)
+      })
     })
 
-    it.skip('Should throw an error if both parameters "isFlag" and "isArray" are true', () => {
+    it('Should throw an error if both parameters "isFlag" and "isArray" are true', () => {
       const parser = new ArgvParser()
 
-      assert.throws(() => parser.declare({
+      const tryDeclare = () => parser.declare({
         name: '--debug',
         isFlag: true,
         isArray: true,
-      }))
+      })
+
+      expect(tryDeclare).toThrow(ArgvParserError)
     })
   })
 
