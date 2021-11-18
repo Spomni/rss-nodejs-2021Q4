@@ -1,4 +1,4 @@
-const { pipeline } = require('stream')
+const { pipeline } = require('stream/promises')
 const path = require('path')
 
 const { InputStream, OutputStream } = require('./cipher-io')
@@ -27,7 +27,7 @@ function getTransformList(config) {
   return config.split('-').map((cmd) => getTransform(cmd))
 }
 
-function cipher({
+async function cipher({
   config,
   input,
   output,
@@ -36,11 +36,10 @@ function cipher({
   const inputPath = (input) ? path.resolve(input) : null
   const outputPath = (output) ? path.resolve(output) : null
 
-  pipeline(
+  await pipeline(
     new InputStream(inputPath),
     ...getTransformList(config),
-    new OutputStream(outputPath),
-    (err) => { if (err) throw err }
+    new OutputStream(outputPath)
   )
 }
 

@@ -14,7 +14,7 @@ const parserConfig = require('./cli-parser-config')
 
 const UNKNOWN_ERR_MSG = 'Unknown error. For more information, run the application with the --debug option.'
 
-function cli() {
+async function cli() {
   try {
 
     const cliOptions = parser.config(parserConfig).exec()
@@ -22,16 +22,14 @@ function cli() {
 
     validateCipherOptions(cipherOptions)
 
-    cipher(cipherOptions)
+    await cipher(cipherOptions)
 
   } catch (err) {
 
     if (isKnownError(err)) {
       writeStderr(err.message)
-      // process.stderr.write(err.message + '\n')
     } else {
       writeStderr(UNKNOWN_ERR_MSG)
-      // process.stderr.write(UNKNOWN_ERR_MSG)
     }
 
     if (isInDebugMode()) {
