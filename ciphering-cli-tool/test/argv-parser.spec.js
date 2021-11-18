@@ -281,98 +281,92 @@ describe('ArgvParser', function () {
       }
     ]
 
-    it.skip('Should return null if the .exec() method have not been executed', function () {
+    const declaredNames = ['--config', '--input', '--debug', '-c', '-i']
+
+    it('Should return null if the .exec() method have not been executed', function () {
       const parser = new ArgvParser()
-      parser.declare(declareConfig)
-      assert.isNull(parser.getAll())
+      expect(parser.getAll()).toBeNull()
     })
 
-    it.skip('Should return an object with all declared options and aliases', async function () {
+    it('Should return an object with all declared options and aliases', async function () {
       const parser = new ArgvParser()
       parser.declare(declareConfig)
 
-      await mockArgv(['--debug'], () => {
+      mockArgv(['--debug'], () => {
         parser.exec()
-     })
 
-      const result = parser.getAll()
-
-      ;['--config', '--input', '--debug', '-c', '-i'].forEach((name) => {
-        assert.property(result, name)
+        ;[...declaredNames, '--debug'].forEach((name) => {
+          expect(parser.getAll()).toHaveProperty(name)
+        })
       })
     })
 
-    it.skip(`Should return options with their correct values`, async function() {
+    it(`Should return options with their correct values`, async function() {
       const parser = new ArgvParser()
       parser.declare(declareConfig)
 
-      await mockArgv(
+      mockArgv(
         ['--debug', '-i', './input', '--config', 'set', 'url'],
-        () => parser.exec()
+        () => {
+          parser.exec()
+          expect(parser.getAll()).toHaveProperty('--debug', true)
+          expect(parser.getAll()).toHaveProperty('-i', './input')
+          expect(parser.getAll()).toHaveProperty('--config', ['set', 'url'])
+        }
       )
-
-      const result = parser.getAll()
-
-      assert.strictEqual(result['--debug'], true)
-      assert.strictEqual(result['-i'], './input')
-      assert.deepEqual(result['--config'], ['set', 'url'])
     })
 
-    it.skip('Should copy options values to their aliases.', async function() {
+    it('Should copy options values to their aliases.', async function() {
       const parser = new ArgvParser()
       parser.declare(declareConfig)
 
-      await mockArgv(
+      mockArgv(
         ['--debug', '-i', './input', '--config', 'set', 'url'],
-        () => parser.exec()
+        () => {
+          parser.exec()
+          expect(parser.getAll()).toHaveProperty('--input', './input')
+          expect(parser.getAll()).toHaveProperty('-c', ['set', 'url'])
+        }
       )
-
-      const result = parser.getAll()
-
-      assert.strictEqual(result['--input'], './input')
-      assert.deepEqual(result['-c'], ['set', 'url'])
     })
 
-    it.skip('Should set missed flag options to false', async function () {
+    it('Should set missed flag options to false', async function () {
       const parser = new ArgvParser()
       parser.declare(declareConfig)
 
-      await mockArgv(
+      mockArgv(
         ['-i', './input', '--config', 'set', 'url'],
-        () => parser.exec()
+        () => {
+          parser.exec()
+          expect(parser.getAll()).toHaveProperty('--debug', false)
+        }
       )
-
-      const result = parser.getAll()
-
-      assert.strictEqual(result['--debug'], false)
     })
 
-    it.skip('Should set missed array options to empty array', async function () {
+    it('Should set missed array options to empty array', async function () {
       const parser = new ArgvParser()
       parser.declare(declareConfig)
 
-      await mockArgv(
+      mockArgv(
         ['-i', './input', '--debug'],
-        () => parser.exec()
+        () => {
+          parser.exec()
+          expect(parser.getAll()).toHaveProperty('--config', [])
+        }
       )
-
-      const result = parser.getAll()
-
-      assert.deepEqual(result['--config'], [])
     })
 
     it.skip('Should set missed string options to null', async function() {
       const parser = new ArgvParser()
       parser.declare(declareConfig)
 
-      await mockArgv(
+      mockArgv(
         ['--debug', '--config', 'set', 'url'],
-        () => parser.exec()
+        () => {
+          parser.exec()
+          expect(parser.getAll()).toHaveProperty('--input', null)
+        }
       )
-
-      const result = parser.getAll()
-
-      assert.strictEqual(result['--input'], null)
     })
   })
 })
