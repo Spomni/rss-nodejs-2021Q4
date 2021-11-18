@@ -328,12 +328,12 @@ describe('ArgvParser', function () {
       parser.declare(declareConfig)
 
       mockArgv(
-        ['--debug', '-i', './input', '--config', 'set', 'url'],
+        ['--debug', '-i', './input', '--config', 'set', 'url', 'third'],
         () => {
           parser.exec()
           expect(parser.getAll()).toHaveProperty('--debug', true)
           expect(parser.getAll()).toHaveProperty('-i', './input')
-          expect(parser.getAll()).toHaveProperty('--config', ['set', 'url'])
+          expect(parser.getAll()).toHaveProperty('--config', ['set', 'url', 'third'])
         }
       )
     })
