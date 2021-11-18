@@ -9,7 +9,7 @@ const {
   Rot8Encoder,
   Rot8Decoder,
   AtbashTransformer,
-} = require('./transform')
+} = require('../transform')
 
 const transformConsructorMap = {
   'C1': CaesarEncoder,
