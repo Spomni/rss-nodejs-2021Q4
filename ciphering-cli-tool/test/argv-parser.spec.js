@@ -10,6 +10,12 @@ const {
 } = require('../lib/argv-parser')
 
 const {
+  InvalidArgumentError,
+  InvalidNameDeclarationError,
+  InvalidAliasDeclarationError,
+  DuplicateOptionDeclarationError,
+  OptionTypeConflictError,
+
   FirstArgumentError,
   InvalidOptionsError,
   UnknownOptionNameError,
@@ -36,7 +42,7 @@ describe('ArgvParser', function () {
 
     it('Should throw an error if configuration is not passed', function () {
       const parser = new ArgvParser()
-      expect(() => parser.config()).toThrow(ArgvParserError)
+      expect(() => parser.config()).toThrow(InvalidArgumentError)
     })
 
     it('Should call the .declare() method with declare option if it is passed in config', function () {
@@ -68,12 +74,12 @@ describe('ArgvParser', function () {
 
       ;[undefined, null, 3, 'str']
         .forEach((declare) => {
-          expect(() => parser.declare(declare)).toThrow(ArgvParserError)
+          expect(() => parser.declare(declare)).toThrow(InvalidArgumentError)
         })
 
       ;[{ name: '--option'}, [{ name: '-o' }]]
         .forEach((declare) => {
-          expect(() => parser.declare(declare)).not.toThrow(declare)
+          expect(() => parser.declare(declare)).not.toThrow()
         })
     })
 
@@ -85,7 +91,7 @@ describe('ArgvParser', function () {
         { isFlag: true }
       ])
 
-      expect(tryDeclare).toThrow(ArgvParserError)
+      expect(tryDeclare).toThrow(InvalidNameDeclarationError)
     })
 
     it('Should throw an error if the any options name is invalid', function () {
