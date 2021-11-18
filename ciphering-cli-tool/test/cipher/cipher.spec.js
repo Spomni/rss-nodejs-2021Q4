@@ -5,10 +5,10 @@ const path = require('path')
 const { assert } = require("chai")
 const { spy } = require('sinon')
 
-const { cipher } = require('../lib/cipher')
+const { cipher } = require('../../lib/cipher')
 
-const inputPath = path.resolve(__dirname, './fixture/input')
-const outputPath = path.resolve(__dirname, './fixture/output')
+const inputPath = path.resolve(__dirname, '../fixture/input')
+const outputPath = path.resolve(__dirname, '../fixture/output')
 
 async function mockStdout(callback) {
   const { stdout } = process
