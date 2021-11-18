@@ -13,13 +13,10 @@ async function cipher({
   output,
 } = {}) {
 
-  const inputPath = (input) ? path.resolve(input) : null
-  const outputPath = (output) ? path.resolve(output) : null
-
   await pipeline(
-    getInputStream(inputPath),
+    getInputStream(input),
     ...getTransformList(config),
-    getOutputStream(outputPath)
+    getOutputStream(output)
   )
 }
 
