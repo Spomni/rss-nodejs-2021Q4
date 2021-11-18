@@ -200,9 +200,7 @@ class ArgvParser {
     return result
   }
 
-  getMissedOptionsNames({
-    requiredOnly = false
-  } = {}) {
+  getMissedOptionsNames({ requiredOnly }) {
     return Object.keys(this._options)
       .filter((name) => !this._options[name].value)
       .filter((name) => !requiredOnly || this._options[name].isRequired)

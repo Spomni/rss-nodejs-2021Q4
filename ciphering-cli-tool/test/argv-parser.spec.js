@@ -17,6 +17,7 @@ const {
   UnexpectedValuesArrayError,
   MissedRequiredOptionError,
   MissedOptionValueError,
+  DuplicatedOptionError,
 } = require('../lib/argv-parser/argv-parser-errors')
 
 function testInputError(fixtures, ErrorClass, parser = null) {
@@ -43,7 +44,7 @@ describe('ArgvParser', function () {
       const declare = {}
 
       const spy = jest.spyOn(parser, 'declare')
-        .mockImplementation(() => {})
+        .mockImplementation()
 
       parser.config({ declare })
       expect(spy).toHaveBeenCalledWith(declare)
@@ -187,7 +188,7 @@ describe('ArgvParser', function () {
         isFlag: true,
       })
 
-      mockArgv(['--debug', 'value'], () => {
+      mockArgv(['--debug', '"value"'], () => {
         expect(() => parser.exec()).toThrow(FlagOptionValueError)
       })
     })
@@ -242,6 +243,27 @@ describe('ArgvParser', function () {
 
       mockArgv(['--input', '--debug'], () => {
         expect(() => parser.exec()).toThrow(MissedOptionValueError)
+      })
+    })
+
+    it('Should throw an error if any option is duplicated', () => {
+      const parser = new ArgvParser()
+
+      parser.declare([
+        {
+          name: '--debug',
+          isFlag: true,
+          isRequired: true
+        },
+        {
+          name: '--input',
+          alias: ['-i'],
+          isRequired: true
+        }
+      ])
+
+      mockArgv(['--input', 'in', '-i', 'in'], () => {
+        expect(() => parser.exec()).toThrow(DuplicatedOptionError)
       })
     })
 
@@ -356,7 +378,7 @@ describe('ArgvParser', function () {
       )
     })
 
-    it.skip('Should set missed string options to null', async function() {
+    it('Should set missed string options to null', async function() {
       const parser = new ArgvParser()
       parser.declare(declareConfig)
 
