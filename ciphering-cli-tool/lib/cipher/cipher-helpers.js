@@ -26,13 +26,13 @@ function getTransformList(config) {
 
 function getInputStream(input) {
   return (input)
-    ? new InputStream()
+    ? new InputStream(input)
     : process.stdin
 }
 
 function getOutputStream(output) {
   return (output)
-    ? new OutputStream()
+    ? new OutputStream(output)
     : process.stdout
 }
 
