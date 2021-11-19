@@ -25,11 +25,15 @@ function getTransformList(config) {
 }
 
 function getInputStream(input) {
-  return new InputStream(input)
+  return (input)
+    ? new InputStream()
+    : process.stdin
 }
 
-function getOutputStream(input) {
-  return new OutputStream(input)
+function getOutputStream(output) {
+  return (output)
+    ? new OutputStream()
+    : process.stdout
 }
 
 module.exports = {
