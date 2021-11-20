@@ -41,11 +41,20 @@ describe('RotTransformer', () => {
   });
 
   describe('shifting', () => {
-    it.todo('Should return value passed to the constructor')
+    it('Should return value passed to the constructor', function () {
+      const shifting = 3
+      const rot = new RotTransformer(3, DIRECTION_.RIGHT)
+      expect(rot.shifting).toBe(shifting)
+    })
   });
 
   describe('direction', () => {
-    it.todo('should return value passed to the constructor')
+    it('should return value passed to the constructor', function () {
+      ;[DIRECTION_.LEFT, DIRECTION_.RIGHT].forEach((direction) => {
+        const rot = new RotTransformer(8, direction)
+        expect(rot.direction).toBe(direction)
+      })
+    })
   });
 
   describe('_transform', () => {
