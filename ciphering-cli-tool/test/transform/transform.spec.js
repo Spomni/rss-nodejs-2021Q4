@@ -79,9 +79,21 @@ describe('transform', function () {
     })
   });
 
-  describe('Rot8Encoder', function () {
-    it.todo('Should extend RotTransformer')
-    it.todo('Should have shifting equal to 8')
-    it.todo('Should have direction LEFT')
+  describe('Rot8Decoder', function () {
+
+    it('Should extend RotTransformer', function () {
+      const rot8Decoder = new Rot8Decoder()
+      expect(rot8Decoder).toBeInstanceOf(RotTransformer)
+    })
+
+    it('Should have shifting equal to 8', function () {
+      const rot8Decoder = new Rot8Decoder()
+      expect(rot8Decoder.shifting).toBe(8)
+    })
+
+    it('Should have direction LEFT', function () {
+      const rot8Decoder = new Rot8Decoder()
+      expect(rot8Decoder.direction).toBe(DIRECTION_.LEFT)
+    })
   });
 })
