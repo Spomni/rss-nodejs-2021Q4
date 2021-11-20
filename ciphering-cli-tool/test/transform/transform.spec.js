@@ -1,6 +1,3 @@
-jest.mock('../../lib/transform/rot-transformer')
-jest.mock('../../lib/transform/atbash-transformer')
-
 const rot = require('../../lib/transform/rot-transformer')
 const atbash = require('../../lib/transform/atbash-transformer')
 
@@ -12,6 +9,8 @@ const {
   Rot8Decoder,
   AtbashTransformer,
 } = require('../../lib/transform')
+
+const DIRECTION_ = RotTransformer.DIRECTION_
 
 describe('transform', function () {
 
@@ -27,9 +26,21 @@ describe('transform', function () {
   });
 
   describe('CaesarEncoder', function () {
-    it.todo('Should extend RotTransformer')
-    it.todo('Should have shifting equal to 1')
-    it.todo('Should have direction RIGHT')
+
+    it('Should extend RotTransformer', function () {
+      const caesarEncoder = new CaesarEncoder()
+      expect(caesarEncoder).toBeInstanceOf(RotTransformer)
+    })
+
+    it('Should have shifting equal to 1', function () {
+      const caesarEncoder = new CaesarEncoder()
+      expect(caesarEncoder.shifting).toBe(1)
+    })
+
+    it('Should have direction RIGHT', function () {
+      const caesarEncoder = new CaesarEncoder()
+      expect(caesarEncoder.direction).toBe(DIRECTION_.RIGHT)
+    })
   });
 
   describe('CaesarDecoder', function () {
