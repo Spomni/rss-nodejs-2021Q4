@@ -44,9 +44,21 @@ describe('transform', function () {
   });
 
   describe('CaesarDecoder', function () {
-    it.todo('Should extend RotTransformer')
-    it.todo('Should have shifting equal to 1')
-    it.todo('Should have direction LEFT')
+
+    it('Should extend RotTransformer', function () {
+      const caesarDecoder = new CaesarDecoder()
+      expect(caesarDecoder).toBeInstanceOf(RotTransformer)
+    })
+
+    it('Should have shifting equal to 1', function () {
+      const caesarDecoder = new CaesarDecoder()
+      expect(caesarDecoder.shifting).toBe(1)
+    })
+
+    it('Should have direction LEFT', function () {
+      const caesarDecoder = new CaesarDecoder()
+      expect(caesarDecoder.direction).toBe(DIRECTION_.LEFT)
+    })
   });
 
   describe('Rot8Encoder', function () {
