@@ -1,6 +1,6 @@
 const fs = require('fs')
 
-async function onFileChangeOnce(filename, callback, timeout = 1000) {
+async function onFileChangeOnce(filename, callback, timeout = 3000) {
   return new Promise((resolve, reject) => {
 
     const watcher = fs.watch(filename)
