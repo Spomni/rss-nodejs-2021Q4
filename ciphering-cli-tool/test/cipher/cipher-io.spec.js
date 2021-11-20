@@ -42,6 +42,11 @@ describe('cipher-io', function () {
         ac.abort()
       }, ac.signal)
     })
+
+    it('Should end if inputPath is not passed and process.std.pause() was called', function () {
+      const inputStream = new InputStream()
+      process.stdin.pause()
+    })
   })
 
   describe('OutputStream', function () {

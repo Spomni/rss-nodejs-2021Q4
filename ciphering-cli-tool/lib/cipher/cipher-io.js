@@ -12,12 +12,6 @@ class InputStream extends Readable {
 
     this._addSourceListeners()
 
-    if (this._source === process.stdin) {
-      process.once('SIGINT', () => {
-        process.stdin.pause()
-      })
-    }
-
     this._source.resume()
   }
 
@@ -41,20 +35,13 @@ class InputStream extends Readable {
     this._removeSourceListeners()
     this.push(null)
   }
-
-  _destroy() {
-    this._removeSourceListeners()
-  }
 }
 
 class OutputStream extends Writable {
 
   constructor(output) {
     super()
-
-    this._target = (output)
-      ? fs.createWriteStream(output, { flags: 'a' })
-      : process.stdout
+    this._target = fs.createWriteStream(output, { flags: 'a' })
   }
 
   _write(data, _, done) {
