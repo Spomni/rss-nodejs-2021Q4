@@ -1,8 +1,29 @@
+jest.mock('../../lib/transform/rot-transformer')
+jest.mock('../../lib/transform/atbash-transformer')
+
+const rot = require('../../lib/transform/rot-transformer')
+const atbash = require('../../lib/transform/atbash-transformer')
+
+const {
+  RotTransformer,
+  CaesarEncoder,
+  CaesarDecoder,
+  Rot8Encoder,
+  Rot8Decoder,
+  AtbashTransformer,
+} = require('../../lib/transform')
+
 describe('transform', function () {
 
   describe('exports', function () {
-    it.todo('Should export RotTransformer')
-    it.todo('Should export AtbashTransformer')
+
+    it('Should export RotTransformer', function () {
+      expect(RotTransformer).toBe(rot.RotTransformer)
+    })
+
+    it('Should export AtbashTransformer', function () {
+      expect(AtbashTransformer).toBe(atbash.AtbashTransformer)
+    })
   });
 
   describe('CaesarEncoder', function () {
