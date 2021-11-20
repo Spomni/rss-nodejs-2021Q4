@@ -1,3 +1,5 @@
+const { Transform } = require('stream')
+
 const matchers = require('jest-extended')
 expect.extend(matchers);
 
@@ -24,9 +26,18 @@ describe('RotTransformer', () => {
   });
 
   describe('constructor()', () => {
-    it.todo('Should throw an error if invalid shifting is passed')
-    it.todo('Should throw an error if invalid direction is passed')
-    it.todo('should return a Transform stream')
+
+    it('Should throw an error if invalid shifting is passed', function () {
+      expect(() => new RotTransformer('many', DIRECTION_.RIGHT)).toThrow()
+    })
+
+    it('Should throw an error if invalid direction is passed', function () {
+      expect(() => new RotTransformer(1, 'forward')).toThrow()
+    })
+
+    it('should return a Transform stream', function () {
+      expect(new RotTransformer(5, DIRECTION_.LEFT)).toBeInstanceOf(Transform)
+    })
   });
 
   describe('shifting', () => {
