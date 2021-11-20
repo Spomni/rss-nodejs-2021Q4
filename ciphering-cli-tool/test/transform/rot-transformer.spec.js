@@ -1,10 +1,25 @@
+const matchers = require('jest-extended')
+expect.extend(matchers);
+
+const { RotTransformer } = require('../../lib/transform/rot-transformer')
+const { DIRECTION_ } = RotTransformer
+
 describe('RotTransformer', () => {
 
   describe('static', () => {
     describe('DIRECTION_', () => {
-      it.todo('Should return an object')
-      it.todo('Should have a property RIGHT')
-      it.todo('Should have a property LEFT')
+
+      it('Should return an object', function () {
+        expect(DIRECTION_).toBeObject()
+      })
+
+      it('Should have a property RIGHT', function () {
+        expect(DIRECTION_).toHaveProperty('RIGHT')
+      })
+
+      it('Should have a property LEFT', function () {
+        expect(DIRECTION_).toHaveProperty('LEFT')
+      })
     });
   });
 
