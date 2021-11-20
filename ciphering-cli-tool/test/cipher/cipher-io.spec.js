@@ -1,9 +1,9 @@
 const fs = require('fs')
-const path = require('path')
-const { Readable, PassThrough } = require('stream')
+const { Readable, Writable } = require('stream')
 
 const { promisifyListener } = require('../lib/promisify-listener')
 const { getIOFilesHelpers  } = require('../lib/test-file-helpers')
+const { onFileChangeOnce } = require('../lib/on-file-change-promise')
 
 const {
   inputPath,
@@ -12,7 +12,7 @@ const {
   removeIOFiles,
 } = getIOFilesHelpers('cipher-io')
 
-const { InputStream } = require('../../lib/cipher/cipher-io')
+const { InputStream, OutputStream } = require('../../lib/cipher/cipher-io')
 
 describe('cipher-io', function () {
 
@@ -45,7 +45,29 @@ describe('cipher-io', function () {
   })
 
   describe('OutputStream', function () {
-    it.todo('Should return a Writable stream instance')
-    it.todo('Should append data to the passed file')
+
+    it('Should return a Writable stream instance', function () {
+      const outputStream = new OutputStream(outputPath)
+      expect(outputStream).toBeInstanceOf(Writable)
+      outputStream.end()
+    })
+
+    it('Should append data to the passed file', async function () {
+      const existsData = 'asdawd\n'
+      const toWriteData = 'asdasd asd aw'
+
+      fs.writeFileSync(outputPath, existsData)
+
+      const outputStream = new OutputStream(outputPath)
+
+      const promise = onFileChangeOnce(outputPath, () => {
+        const content = fs.readFileSync(outputPath)
+        expect(content.toString()).toBe(existsData + toWriteData)
+      })
+
+      outputStream.end(toWriteData)
+
+      await promise;
+    })
   })
 })
