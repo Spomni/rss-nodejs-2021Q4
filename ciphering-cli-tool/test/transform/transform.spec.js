@@ -62,9 +62,21 @@ describe('transform', function () {
   });
 
   describe('Rot8Encoder', function () {
-    it.todo('Should extend RotTransformer')
-    it.todo('Should have shifting equal to 8')
-    it.todo('Should have direction RIGHT')
+
+    it('Should extend RotTransformer', function () {
+      const rot8Encoder = new Rot8Encoder()
+      expect(rot8Encoder).toBeInstanceOf(RotTransformer)
+    })
+
+    it('Should have shifting equal to 8', function () {
+      const rot8Encoder = new Rot8Encoder()
+      expect(rot8Encoder.shifting).toBe(8)
+    })
+
+    it('Should have direction RIGHT', function () {
+      const rot8Encoder = new Rot8Encoder()
+      expect(rot8Encoder.direction).toBe(DIRECTION_.RIGHT)
+    })
   });
 
   describe('Rot8Encoder', function () {
