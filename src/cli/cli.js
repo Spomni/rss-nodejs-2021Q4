@@ -1,4 +1,4 @@
-const { parser, InputError } = require('../argv-parser')
+const parserModule = require('../argv-parser')
 const { cipher } = require('../cipher')
 
 const {
@@ -17,7 +17,7 @@ const UNKNOWN_ERR_MSG = 'Unknown error. For more information, run the applicatio
 async function cli() {
   try {
 
-    const cliOptions = parser.config(parserConfig).exec()
+    const cliOptions = parserModule.parser.config(parserConfig).exec()
     const cipherOptions = extractCipherOptions(cliOptions)
 
     validateCipherOptions(cipherOptions)

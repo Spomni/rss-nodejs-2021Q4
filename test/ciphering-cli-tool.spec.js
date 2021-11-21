@@ -1,3 +1,6 @@
+const mockProps = require('jest-mock-props')
+mockProps.extend(jest);
+
 const fs = require('fs/promises')
 const path = require('path')
 
@@ -24,7 +27,14 @@ const {
   removeIOFiles,
 } = getIOFilesHelpers('ciphering-cli-tool')
 
+const ArgvParserModule = require('../src/argv-parser')
+const { ArgvParser } = ArgvParserModule
+
+const parserMock = jest.spyOn(ArgvParserModule, 'parser')
+
 const { onFileChange } = require('./__helpers/on-file-change')
+const { mockArgv } = require('./__helpers/mock-argv')
+const { mockStderr } = require('./__helpers/mock-std-io')
 
 const appPath = path.resolve(srcPath, '../index.js')
 
@@ -623,6 +633,88 @@ describe('ciphering-cli-tool', function () {
         async after() {
           await fs.writeFile(outputPath, '')
         }
+      })
+    })
+
+    it('Should print human readable error if no file access to read', function (done) {
+
+      const fs = require('fs')
+
+      jest
+        .spyOn(fs, 'accessSync')
+        .mockImplementation((file, constant) => {
+          if (constant === fs.constants.R_OK) {
+            throw new ('no access to read')
+          }
+        })
+
+      jest
+        .spyOn(process, 'exit')
+        .mockImplementation((code) => {})
+
+
+      const { cli } = require('../src/cli/cli')
+
+      mockArgv(`-c A -i no-file`.split(' '), async () => {
+        mockStderr((stdErrMock) => {
+
+          stdErrMock.on('data', (data) => {
+            const message = data.toString()
+
+            try {
+              expect(message).toMatch(ERR_REG_EXP_.NO_READ_ACCESS_ERR)
+              done()
+            } catch (error) {
+              done(error)
+            }
+          })
+
+          cli()
+
+          fs.accessSync.mockRestore()
+          process.exit.mockRestore()
+        })
+      })
+    })
+
+    it('Should print human readable error if no file access to read', function (done) {
+
+      const fs = require('fs')
+
+      jest
+        .spyOn(fs, 'accessSync')
+        .mockImplementation((file, constant) => {
+          if (constant === fs.constants.W_OK) {
+            throw new ('no access to read')
+          }
+        })
+
+      jest
+        .spyOn(process, 'exit')
+        .mockImplementation(() => {})
+
+      parserMock.mockValueOnce(new ArgvParser())
+      const { cli } = require('../src/cli/cli')
+
+      mockArgv(`-c A -i ${inputPath} -o no-file`.split(' '), async () => {
+        mockStderr((stdErrMock) => {
+
+          stdErrMock.on('data', (data) => {
+            const message = data.toString()
+
+            try {
+              expect(message).toMatch(ERR_REG_EXP_.NO_WRITE_ACCESS_ERR)
+              done()
+            } catch (error) {
+              done(error)
+            }
+          })
+
+          cli()
+
+          fs.accessSync.mockRestore()
+          process.exit.mockRestore()
+        })
       })
     })
   })

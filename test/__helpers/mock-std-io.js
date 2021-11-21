@@ -13,7 +13,7 @@ async function mockStderr(callback) {
       value: output
     })
 
-    await callback(stderr)
+    await callback(output, stderr)
 
   } finally {
     Object.defineProperty(process, 'stderr', {
