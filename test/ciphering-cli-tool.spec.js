@@ -677,7 +677,7 @@ describe('ciphering-cli-tool', function () {
       })
     })
 
-    it('Should print human readable error if no file access to read', function (done) {
+    it('Should print human readable error if no file access to write', function (done) {
 
       const fs = require('fs')
 
