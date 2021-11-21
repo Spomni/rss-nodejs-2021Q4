@@ -76,15 +76,17 @@ async function waitClosing({ subProcess }) {
   })
 }
 
+const { testTimeout } = global.testEnv
+
 async function spawnToTest({
   command = 'node',
   args = [],
-  
+
   handleSpawn = null,
   handleClose = null,
   handleError = null,
 
-  timeout = 1000,
+  timeout = (testTimeout < 1000) ? 1000 : testTimeout - 1000,
 
   before = null,
   after = null
@@ -110,7 +112,7 @@ async function spawnToTest({
 
     timer.clear()
     subProcess.kill()
-    
+
     if (after) await after()
   }
 }

@@ -1,6 +1,12 @@
 const fs = require('fs')
 
-async function onFileChangeOnce(filename, callback, timeout = 3000) {
+const { testTimeout } = global.testEnv
+
+async function onFileChangeOnce(
+  filename,
+  callback,
+  timeout = (testTimeout < 1000) ? 1000 : testTimeout - 1000,
+) {
   return new Promise((resolve, reject) => {
 
     const watcher = fs.watch(filename)

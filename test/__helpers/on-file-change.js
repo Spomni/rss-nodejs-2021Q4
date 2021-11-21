@@ -1,6 +1,11 @@
 const fs = require('fs/promises')
 
-async function onFileChange(filename, timeout) {
+const { testTimeout } = global.testEnv
+
+async function onFileChange(
+  filename,
+  timeout = (testTimeout < 1000) ? 1000 : testTimeout - 1000,
+) {
   return new Promise(async (resolve, reject) => {
 
     const oldBuffer = await fs.readFile(filename)
