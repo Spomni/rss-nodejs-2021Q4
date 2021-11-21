@@ -1,4 +1,4 @@
-const mockArgv = require('mock-argv')
+const { mockArgv } = require('./lib/mock-argv')
 
 const {
   isInDebugMode,
@@ -25,7 +25,7 @@ const {
   validateConfig,
   validateInput,
   validateOutput,
-  
+
   ValidationError,
 } = require('../lib/validate')
 
@@ -45,7 +45,7 @@ describe('cli-helpers', function () {
       })
     })
   })
-  
+
   describe('isKnownError():', function () {
 
     it('Should return true if a passed value is an argv parsing error', function () {
@@ -67,7 +67,7 @@ describe('cli-helpers', function () {
       })
     })
   })
-  
+
   describe('extractCipherOptions():', function () {
 
     it('Should return object with properties "config", "input", "output"', function () {
@@ -83,7 +83,7 @@ describe('cli-helpers', function () {
         '--input': {},
         '--outpur': {},
       }
-      
+
       const cipherOpts = extractCipherOptions(cliOpts)
 
       expect(cipherOpts.config).toBe(cliOpts['--config'])
@@ -91,9 +91,9 @@ describe('cli-helpers', function () {
       expect(cipherOpts.output).toBe(cliOpts['--output'])
     })
   })
-  
+
   describe('killCli():', function () {
-  
+
     it('Should call procces.exit() with passed value', function () {
 
       const exitMock = jest.spyOn(global.process, 'exit').mockImplementation(() => {})
@@ -105,7 +105,7 @@ describe('cli-helpers', function () {
       exitMock.mockRestore()
     })
   })
-  
+
   describe('writeStderr():', function () {
 
     it('Should write passed value to process.stderr with trailng line break', function () {
@@ -125,13 +125,13 @@ describe('cli-helpers', function () {
     const input = {}
     const output = {}
     const config = {}
-    
+
     validateCipherOptions({ input, output, config })
 
     it('Should call the validateInput() function with input value', function() {
        expect(validateInput).toHaveBeenCalledWith(input)
      })
- 
+
     it('Should call the validateOutput() function with output value', function() {
       expect(validateOutput).toHaveBeenCalledWith(output)
     })
