@@ -1,13 +1,13 @@
 const mockProps = require('jest-mock-props')
 mockProps.extend(jest);
 
-const { mockArgv } = require('./__helpers/mock-argv')
+const { mockArgv } = require('../__helpers/mock-argv')
 
 const {
   ArgvParser,
   ArgvParserError,
   InputError
-} = require('../src/argv-parser')
+} = require('../../src/argv-parser')
 
 const {
   InvalidArgumentError,
@@ -24,7 +24,7 @@ const {
   MissedRequiredOptionError,
   MissedOptionValueError,
   DuplicatedOptionError,
-} = require('../src/argv-parser/argv-parser-errors')
+} = require('../../src/argv-parser/argv-parser-errors')
 
 function testInputError(fixtures, ErrorClass, parser = null) {
   const parserToExec = parser || new ArgvParser()
