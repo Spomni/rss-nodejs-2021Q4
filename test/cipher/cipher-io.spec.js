@@ -3,7 +3,10 @@ const { Readable, Writable } = require('stream')
 
 const { promisifyListener } = require('../__helpers/promisify-listener')
 const { getIOFilesHelpers  } = require('../__helpers/test-file-helpers')
-const { onFileChangeOnce } = require('../__helpers/on-file-change-promise')
+const { onFileChange } = require('../__helpers/on-file-change')
+const { timeout } = require('../__helpers/timeout-promise')
+
+const { ioDelay } = global.testEnv
 
 const {
   inputPath,
@@ -65,14 +68,13 @@ describe('cipher-io', function () {
 
       const outputStream = new OutputStream(outputPath)
 
-      const promise = onFileChangeOnce(outputPath, () => {
-        const content = fs.readFileSync(outputPath)
-        expect(content.toString()).toBe(existsData + toWriteData)
-      })
-
+      const promise = onFileChange(outputPath)
+      await timeout(ioDelay)
       outputStream.end(toWriteData)
+      await promise
 
-      await promise;
+      const content = fs.readFileSync(outputPath)
+      expect(content.toString()).toBe(existsData + toWriteData)
     })
   })
 })

@@ -15,6 +15,8 @@ const {
   getOutputStream,
 } = require('../../src/cipher/cipher-helpers')
 
+const { ioDelay } = global.testEnv
+
 const inputStream = {}
 const outputStream = {}
 const transformList = [{}, {}, {}]
@@ -73,12 +75,12 @@ describe('cipher', () => {
     let isPipelineFullfilled = false
 
     pipeline.mockImplementationOnce(async () => {
-      await timeout(20)
+      await timeout(ioDelay)
       isPipelineFullfilled = true
     })
 
     await cipher()
-    
+
     expect(isPipelineFullfilled).toBe(true)
   })
 })

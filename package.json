@@ -8,7 +8,7 @@
   },
   "scripts": {
     "test": "jest",
-    "test:coverage": "jest"
+    "test:coverage": "jest --coverage"
   },
   "repository": {
     "type": "git",
@@ -25,5 +25,10 @@
     "jest": "^27.3.1",
     "jest-extended": "^1.1.0",
     "jest-mock-props": "^1.9.0"
+  },
+  "jest": {
+    "setupFiles": [
+      "<rootDir>/test/__setup.js"
+    ]
   }
 }
