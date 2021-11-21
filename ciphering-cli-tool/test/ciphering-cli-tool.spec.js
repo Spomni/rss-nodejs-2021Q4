@@ -1,4 +1,5 @@
 const fs = require('fs/promises')
+const path = require('path')
 
 const {
   spawnToTest,
@@ -10,21 +11,22 @@ const { timeout } = require('./__helpers/timeout-promise')
 
 const ERR_REG_EXP_ = require('./__helpers/cli-errors-reg-exp')
 
-const cliPath = 'index'
-const inputPath = 'test/fixture/cli-input'
-const outputPath = 'test/fixture/cli-output'
+const {
+  srcPath,
+  testPath,
+  getIOFilesHelpers,
+} = require('./__helpers/test-file-helpers')
+
+const {
+  inputPath,
+  outputPath,
+  clearIOFiles,
+  removeIOFiles,
+} = getIOFilesHelpers('ciphering-cli-tool')
+
+const cliPath = path.resolve(srcPath, '../index.js')
 
 const ioDelay = 200
-
-async function clearIOFiles() {
-  await fs.writeFile(inputPath, '')
-  await fs.writeFile(outputPath, '')
-}
-
-async function removeIOFiles() {
-  await fs.unlink(inputPath)
-  await fs.unlink(outputPath)
-}
 
 describe('cli', function () {
 
@@ -165,7 +167,7 @@ describe('cli', function () {
     it('if input option lead to a directory', async function () {
       await spawnToTest({
 
-        args: `${cliPath} --config A -i lib`.split(' '),
+        args: `${cliPath} --config A -i ${testPath}`.split(' '),
 
         handleClose({ suberr, code }) {
           expect(suberr).toMatch(ERR_REG_EXP_.INPUT_IS_DIR_ERR)
@@ -189,7 +191,7 @@ describe('cli', function () {
     it('if input option lead to a directory', async function () {
       await spawnToTest({
 
-        args: `${cliPath} --config A -o lib`.split(' '),
+        args: `${cliPath} --config A -o ${testPath}`.split(' '),
 
         handleClose({ suberr, code }) {
           expect(suberr).toMatch(ERR_REG_EXP_.OUTPUT_IS_DIR_ERR)
@@ -355,7 +357,7 @@ describe('cli', function () {
       const fixtures = ['A', '_', 'Л']
 
       await spawnToTest({
-      
+
         timeout: ioDelay * 2 * 3,
 
         args: `${cliPath} -c C0`.split(' '),
@@ -391,20 +393,20 @@ describe('cli', function () {
 
       for (let [argsStr, input, output] of fixtures) {
         await spawnToTest({
-        
+
           args: argsStr.split(' '),
-          
+
           async before() {
             await fs.writeFile(inputPath, input)
           },
-          
+
           async handleClose({ code }) {
             expect(code).toBe(0)
 
             const content = await fs.readFile(outputPath, 'utf-8')
             expect(content).toBe(output)
           },
-        
+
           async after() {
             await clearIOFiles()
           },
@@ -418,16 +420,16 @@ describe('cli', function () {
       const input = 'asd'
       const output = 'zhw'
       const finalOutput = existsOutput + output
-      
+
       await spawnToTest({
-        
+
         args: `${cliPath} -c A -i ${inputPath} -o ${outputPath}`.split(' '),
-        
+
         async before() {
           await fs.writeFile(inputPath, input)
           await fs.writeFile(outputPath, existsOutput)
         },
-        
+
         async handleClose({ code }) {
           expect(code).toBe(0)
 
@@ -449,7 +451,7 @@ describe('cli', function () {
         async before() {
           await fs.writeFile(inputPath, input)
         },
-        
+
         handleClose({ code, subout }) {
           expect(code).toBe(0)
           expect(subout).toBe(output)
@@ -461,18 +463,18 @@ describe('cli', function () {
 
       const input = 'abc'
       const output = 'zyx'
-      
+
       let counter = 0
-      
+
       await spawnToTest({
-        
+
         args: `${cliPath} -c A`.split(' '),
-        
+
         handleSpawn({ subProcess }) {
 
           subProcess.stdout.on('data', () => {
             counter += 1
-            
+
             if (counter !== input.length) {
               subProcess.stdin.write(input[counter])
             } else {
@@ -480,10 +482,10 @@ describe('cli', function () {
               subProcess.kill()
             }
           })
-          
+
           subProcess.stdin.write(input[0])
         },
-        
+
         handleClose({ code, subout }) {
           expect(code).toBe(0)
           expect(counter).toBe(input.length)
@@ -500,32 +502,32 @@ describe('cli', function () {
       let counter = 0
 
       await spawnToTest({
-      
+
         timeout: ioDelay * input.length * 4,
-      
+
         args: `${cliPath} -c A -o ${outputPath}`.split(' '),
-        
+
         async handleSpawn({ subProcess }) {
           let index = 0
-          
+
           for (let letter of input) {
 
             subProcess.stdin.write(letter)
-            
+
             await timeout(ioDelay * 3)
-            
+
             const expectedContent = output.slice(0, index + 1)
             const content = await fs.readFile(outputPath, 'utf-8')
-            
+
             expect(content).toBe(expectedContent)
-             
+
              index += 1
           }
-          
+
           subProcess.exitCode = 0
           subProcess.kill()
         },
-        
+
         handleClose({ code }) {
           expect(code).toBe(0)
         }
@@ -534,9 +536,9 @@ describe('cli', function () {
   })
 
   describe('ciphering', function () {
-  
+
     it('Should cipher only english alphabet symbols', async function () {
-      
+
       const input = `
         adfgutvnjihfd hujhfy
         _/*[](){}<^°¢£~√×}[<©®™
@@ -549,21 +551,21 @@ describe('cli', function () {
         паыкгщоппнзжпмипкврщщпм
         13796322797587535
       `
-      
+
       await spawnToTest({
-        
+
         args: `${cliPath} -c R1-C0-A`.split(' '),
-        
+
         handleSpawn({ subProcess }) {
 
           subProcess.stdout.on('data', () => {
             subProcess.exitCode = 0
             subProcess.kill()
           })
-          
+
           subProcess.stdin.write(input)
         },
-        
+
         handleClose({ code, subout }) {
           expect(code).toBe(0)
           expect(subout).toBe(output)
@@ -575,7 +577,7 @@ describe('cli', function () {
   describe('examples', function () {
 
     beforeEach(async () => await clearIOFiles())
-    
+
     it('Should works correct with task examples', async function () {
 
       const input = `This is secret. Message about "_" symbol!`
@@ -600,21 +602,21 @@ describe('cli', function () {
           output: `This is secret. Message about "_" symbol!`
         },
       ]
-      
+
       await fs.writeFile(inputPath, input)
-      
+
       for (let { config, output } of fixtures) {
         await spawnToTest({
-          
+
           args: getArgs(config),
-          
+
           async handleClose({ code }) {
             expect(code).toBe(0)
-            
+
             const content = await fs.readFile(outputPath, 'utf-8')
             expect(content).toBe(output)
           },
-          
+
           async after() {
             await fs.writeFile(outputPath, '')
           }

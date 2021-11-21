@@ -1,5 +1,5 @@
-const rot = require('../../lib/transform/rot-transformer')
-const atbash = require('../../lib/transform/atbash-transformer')
+const rot = require('../../src/transform/rot-transformer')
+const atbash = require('../../src/transform/atbash-transformer')
 
 const {
   RotTransformer,
@@ -8,7 +8,7 @@ const {
   Rot8Encoder,
   Rot8Decoder,
   AtbashTransformer,
-} = require('../../lib/transform')
+} = require('../../src/transform')
 
 const DIRECTION_ = RotTransformer.DIRECTION_
 

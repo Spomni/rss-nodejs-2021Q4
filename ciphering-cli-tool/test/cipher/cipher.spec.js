@@ -1,11 +1,11 @@
-const { cipher } = require('../../lib/cipher')
+const { cipher } = require('../../src/cipher')
 const { timeout } = require('../__helpers/timeout-promise')
 
 const jestExtended = require('jest-extended')
 expect.extend(jestExtended)
 
 jest.mock('stream/promises')
-jest.mock('../../lib/cipher/cipher-helpers')
+jest.mock('../../src/cipher/cipher-helpers')
 
 const { pipeline } = require('stream/promises')
 
@@ -13,7 +13,7 @@ const {
   getTransformList,
   getInputStream,
   getOutputStream,
-} = require('../../lib/cipher/cipher-helpers')
+} = require('../../src/cipher/cipher-helpers')
 
 const inputStream = {}
 const outputStream = {}

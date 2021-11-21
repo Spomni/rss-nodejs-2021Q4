@@ -7,7 +7,7 @@ const {
   ArgvParser,
   ArgvParserError,
   InputError
-} = require('../lib/argv-parser')
+} = require('../src/argv-parser')
 
 const {
   InvalidArgumentError,
@@ -24,7 +24,7 @@ const {
   MissedRequiredOptionError,
   MissedOptionValueError,
   DuplicatedOptionError,
-} = require('../lib/argv-parser/argv-parser-errors')
+} = require('../src/argv-parser/argv-parser-errors')
 
 function testInputError(fixtures, ErrorClass, parser = null) {
   const parserToExec = parser || new ArgvParser()

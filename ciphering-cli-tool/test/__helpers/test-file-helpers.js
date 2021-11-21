@@ -1,8 +1,8 @@
 const path = require('path')
 const fs = require('fs')
 
-const srcPath = path.resolve(__dirname, '../lib/')
 const testPath = path.resolve(__dirname, '../')
+const srcPath = path.resolve(testPath, '../src/')
 const fixturePath = path.join(testPath, 'fixture/')
 
 function fromSrc(file) {

@@ -5,7 +5,7 @@ expect.extend(matchers);
 
 const { testTransformer } = require('../__helpers/test-transformer')
 
-const { RotTransformer } = require('../../lib/transform/rot-transformer')
+const { RotTransformer } = require('../../src/transform/rot-transformer')
 const { DIRECTION_ } = RotTransformer
 
 const CODE_ = {

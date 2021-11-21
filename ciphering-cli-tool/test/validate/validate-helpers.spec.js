@@ -7,7 +7,7 @@ const {
   validateConfig,
   validateInput,
   validateOutput,
-} = require('../../lib/validate/validate-helpers')
+} = require('../../src/validate/validate-helpers')
 
 const {
   inputPath,

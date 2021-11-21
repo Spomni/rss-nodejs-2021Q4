@@ -2,7 +2,7 @@ const { Transform } = require('stream')
 
 const { testTransformer } = require('../__helpers/test-transformer')
 
-const { AtbashTransformer } = require('../../lib/transform/atbash-transformer')
+const { AtbashTransformer } = require('../../src/transform/atbash-transformer')
 
 const CODE_ = {
   LOWER_A: 97,

@@ -12,7 +12,7 @@ const {
   removeIOFiles,
 } = getIOFilesHelpers('cipher-io')
 
-const { InputStream, OutputStream } = require('../../lib/cipher/cipher-io')
+const { InputStream, OutputStream } = require('../../src/cipher/cipher-io')
 
 describe('cipher-io', function () {
 

@@ -7,13 +7,13 @@ const {
   killCli,
   writeStderr,
   validateCipherOptions,
-} = require('../lib/cli/cli-helpers')
+} = require('../src/cli/cli-helpers')
 
-const { InputError } = require('../lib/argv-parser')
+const { InputError } = require('../src/argv-parser')
 
-jest.mock('../lib/validate', () => {
-  const automock = jest.createMockFromModule('../lib/validate')
-  const { ValidationError } = jest.requireActual('../lib/validate')
+jest.mock('../src/validate', () => {
+  const automock = jest.createMockFromModule('../src/validate')
+  const { ValidationError } = jest.requireActual('../src/validate')
 
   return {
     ...automock,
@@ -27,7 +27,7 @@ const {
   validateOutput,
 
   ValidationError,
-} = require('../lib/validate')
+} = require('../src/validate')
 
 describe('cli-helpers', function () {
 
