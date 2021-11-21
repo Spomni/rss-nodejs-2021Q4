@@ -28,7 +28,7 @@ const { onFileChange } = require('./__helpers/on-file-change')
 
 const cliPath = path.resolve(srcPath, '../index.js')
 
-const ioDelay = 200
+const { ioDelay } = global.testEnv
 
 describe('cli', function () {
 
@@ -360,8 +360,6 @@ describe('cli', function () {
 
       await spawnToTest({
 
-        timeout: ioDelay * 2 * 3,
-
         args: `${cliPath} -c C0`.split(' '),
 
         async handleSpawn({ subProcess }) {
@@ -503,8 +501,6 @@ describe('cli', function () {
 
       await spawnToTest({
 
-        timeout: ioDelay * 5 * 3,
-
         args: `${cliPath} -c A -o ${outputPath}`.split(' '),
 
         async handleSpawn({ subProcess }) {
@@ -512,7 +508,7 @@ describe('cli', function () {
 
           for (let letter of input) {
 
-            const promise = onFileChange(outputPath, ioDelay * 4)
+            const promise = onFileChange(outputPath)
             await timeout(ioDelay)
             subProcess.stdin.write(letter)
             await promise

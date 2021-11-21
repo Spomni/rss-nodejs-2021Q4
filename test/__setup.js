@@ -1,5 +1,5 @@
 const ioDelay = 200
-const testTimeout = ioDelay * 5 * 5
+const testTimeout = (ioDelay < 200) ? 5000 : ioDelay * 25
 
 jest.setTimeout(testTimeout)
 

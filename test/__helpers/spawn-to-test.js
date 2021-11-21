@@ -86,7 +86,7 @@ async function spawnToTest({
   handleClose = null,
   handleError = null,
 
-  timeout = (testTimeout < 1000) ? 1000 : testTimeout - 1000,
+  timeout = (testTimeout < 2000) ? testTimeout : testTimeout - 1000,
 
   before = null,
   after = null
