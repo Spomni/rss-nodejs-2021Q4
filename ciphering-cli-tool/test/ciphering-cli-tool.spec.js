@@ -24,6 +24,8 @@ const {
   removeIOFiles,
 } = getIOFilesHelpers('ciphering-cli-tool')
 
+const { onFileChange } = require('./__helpers/on-file-change')
+
 const cliPath = path.resolve(srcPath, '../index.js')
 
 const ioDelay = 200
@@ -494,16 +496,14 @@ describe('cli', function () {
       })
     })
 
-    it('Should write to the file every times when stdin is pushed', async function () {
+    it.only('Should write to the file every times when stdin is pushed', async function () {
 
       const input = 'abc'
       const output = 'zyx'
 
-      let counter = 0
-
       await spawnToTest({
 
-        timeout: ioDelay * input.length * 4,
+        timeout: ioDelay * 5 * 3,
 
         args: `${cliPath} -c A -o ${outputPath}`.split(' '),
 
@@ -512,16 +512,17 @@ describe('cli', function () {
 
           for (let letter of input) {
 
+            const promise = onFileChange(outputPath, ioDelay * 4)
+            await timeout(ioDelay)
             subProcess.stdin.write(letter)
-
-            await timeout(ioDelay * 3)
+            await promise
 
             const expectedContent = output.slice(0, index + 1)
             const content = await fs.readFile(outputPath, 'utf-8')
 
             expect(content).toBe(expectedContent)
 
-             index += 1
+            index += 1
           }
 
           subProcess.exitCode = 0
