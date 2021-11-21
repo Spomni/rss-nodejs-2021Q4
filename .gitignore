@@ -1,5 +1,8 @@
 /temp/
 
+# idea
+.idea/
+
 # Logs
 logs
 *.log
