@@ -1,17 +1,17 @@
 const jestExtended = require('jest-extended')
 
-const { mockStderr } = require('./lib/mock-std-io')
-const { cli } = require('../lib/cli/cli')
+const { mockStderr } = require('../__helpers/mock-std-io')
+const { cli } = require('../../src/cli/cli')
 
 expect.extend(jestExtended)
-jest.mock('../lib/argv-parser')
-jest.mock('../lib/cipher')
-jest.mock('../lib/cli/cli-helpers')
-jest.mock('../lib/cli/cli-parser-config')
+jest.mock('../../src/argv-parser')
+jest.mock('../../src/cipher')
+jest.mock('../../src/cli/cli-helpers')
+jest.mock('../../src/cli/cli-parser-config')
 
-const parserConfig = require('../lib/cli/cli-parser-config')
-const { parser } = require('../lib/argv-parser')
-const { cipher } = require('../lib/cipher')
+const parserConfig = require('../../src/cli/cli-parser-config')
+const { parser } = require('../../src/argv-parser')
+const { cipher } = require('../../src/cipher')
 
 const {
   validateCipherOptions,
@@ -20,7 +20,7 @@ const {
   writeStderr,
   killCli,
   isInDebugMode,
-} = require('../lib/cli/cli-helpers')
+} = require('../../src/cli/cli-helpers')
 
 const parsedOptions = {}
 

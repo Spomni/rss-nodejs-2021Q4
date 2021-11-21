@@ -3,9 +3,9 @@ const { Transform } = require('stream')
 const matchers = require('jest-extended')
 expect.extend(matchers);
 
-const { testTransformer } = require('../lib/test-transformer')
+const { testTransformer } = require('../__helpers/test-transformer')
 
-const { RotTransformer } = require('../../lib/transform/rot-transformer')
+const { RotTransformer } = require('../../src/transform/rot-transformer')
 const { DIRECTION_ } = RotTransformer
 
 const CODE_ = {

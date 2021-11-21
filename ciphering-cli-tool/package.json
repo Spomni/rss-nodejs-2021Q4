@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "directories": {
-    "lib": "lib"
+    "lib": "src"
   },
   "scripts": {
     "test": "jest"

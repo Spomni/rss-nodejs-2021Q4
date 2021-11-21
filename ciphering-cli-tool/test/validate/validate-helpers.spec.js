@@ -1,13 +1,13 @@
 const {
   testPath,
   getIOFilesHelpers,
-} = require('../lib/test-file-helpers')
+} = require('../__helpers/test-file-helpers')
 
 const {
   validateConfig,
   validateInput,
   validateOutput,
-} = require('../../lib/validate/validate-helpers')
+} = require('../../src/validate/validate-helpers')
 
 const {
   inputPath,

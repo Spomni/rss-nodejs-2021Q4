@@ -3,7 +3,7 @@ const path = require(`path`)
 const jestExtended = require('jest-extended')
 expect.extend(jestExtended)
 
-const srcPath = path.resolve(__dirname, '../../lib/')
+const srcPath = path.resolve(__dirname, '../../src/')
 const testPath = path.resolve(__dirname, '../')
 
 function fromSrc(filename) {
