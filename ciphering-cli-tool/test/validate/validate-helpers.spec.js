@@ -1,4 +1,7 @@
-const { testPath } = require('../lib/test-file-helpers')
+const {
+  testPath,
+  getIOFilesHelpers,
+} = require('../lib/test-file-helpers')
 
 const {
   validateConfig,
@@ -6,7 +9,17 @@ const {
   validateOutput,
 } = require('../../lib/validate/validate-helpers')
 
+const {
+  inputPath,
+  outputPath,
+  clearIOFiles,
+  removeIOFiles,
+} = getIOFilesHelpers('validate-helpers')
+
 describe('validate-helpers.js', () => {
+
+  beforeAll(clearIOFiles)
+  afterAll(removeIOFiles)
 
   describe('validateInput()', () => {
 
@@ -20,6 +33,11 @@ describe('validate-helpers.js', () => {
 
     it('Should throw an error if passed file is direcvtory', function () {
       expect(() => validateInput(testPath)).toThrow()
+    })
+
+    it('Should not throw any error if input is valid', function () {
+      clearIOFiles()
+      expect(() => validateInput(inputPath)).not.toThrow()
     })
   });
 
@@ -35,6 +53,11 @@ describe('validate-helpers.js', () => {
 
     it('Should throw an error if passed file is direcvtory', function () {
       expect(() => validateOutput(testPath)).toThrow()
+    })
+
+    it('Should not throw any error if output is valid', function () {
+      clearIOFiles()
+      expect(() => validateOutput(outputPath)).not.toThrow()
     })
   });
 
@@ -93,6 +116,11 @@ describe('validate-helpers.js', () => {
       fixture.forEach((config) => {
         expect(() => validateConfig(config)).toThrow()
       })
+    })
+
+    it('Should not throw any error if config is valid', function () {
+      const config = 'A-C0-C1-R0-R1'
+      expect(() => validateConfig(config)).not.toThrow()
     })
   });
 });
