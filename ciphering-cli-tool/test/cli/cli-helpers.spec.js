@@ -1,4 +1,4 @@
-const { mockArgv } = require('./__helpers/mock-argv')
+const { mockArgv } = require('../__helpers/mock-argv')
 
 const {
   isInDebugMode,
@@ -7,13 +7,13 @@ const {
   killCli,
   writeStderr,
   validateCipherOptions,
-} = require('../src/cli/cli-helpers')
+} = require('../../src/cli/cli-helpers')
 
-const { InputError } = require('../src/argv-parser')
+const { InputError } = require('../../src/argv-parser')
 
-jest.mock('../src/validate', () => {
-  const automock = jest.createMockFromModule('../src/validate')
-  const { ValidationError } = jest.requireActual('../src/validate')
+jest.mock('../../src/validate', () => {
+  const automock = jest.createMockFromModule('../../src/validate')
+  const { ValidationError } = jest.requireActual('../../src/validate')
 
   return {
     ...automock,
@@ -27,7 +27,7 @@ const {
   validateOutput,
 
   ValidationError,
-} = require('../src/validate')
+} = require('../../src/validate')
 
 describe('cli-helpers', function () {
 
