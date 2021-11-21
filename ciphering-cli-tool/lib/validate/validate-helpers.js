@@ -42,9 +42,6 @@ function hasValidCipheringDirection(command) {
     case 'R':
     case 'C':
       return command[1] === '0' || command[1] === '1'
-
-    default:
-      return false
   }
 }
 
@@ -57,9 +54,6 @@ function hasCorrectCommandLength(command) {
     case 'C':
     case 'R':
       return command.length === 2
-
-    default:
-        return false
   }
 }
 
@@ -95,8 +89,6 @@ function validateConfig(config) {
       throw new InvalidCommandLengthError(command, position)
     }
   })
-
-  return true
 }
 
 function isDirectory(filePath) {
