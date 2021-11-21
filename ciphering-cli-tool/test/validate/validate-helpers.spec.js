@@ -24,9 +24,18 @@ describe('validate-helpers.js', () => {
   });
 
   describe('validateOutput()', () => {
-    it.todo('Should throw an error if the function is called without arguments')
-    it.todo('Should throw an error if no access to write file')
-    it.todo('Should throw an error if passed file is direcvtory')
+
+    it('Should throw an error if the function is called without arguments',function () {
+      expect(() => validateOutput()).toThrow()
+    })
+
+    it('Should throw an error if no access to write file', function () {
+      expect(() => validateOutput('no-file')).toThrow()
+    })
+
+    it('Should throw an error if passed file is direcvtory', function () {
+      expect(() => validateOutput(testPath)).toThrow()
+    })
   });
 
   describe('validateConfig()', () => {
