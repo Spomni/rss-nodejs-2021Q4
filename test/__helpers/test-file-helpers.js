@@ -5,18 +5,6 @@ const testPath = path.resolve(__dirname, '../')
 const srcPath = path.resolve(testPath, '../src/')
 const fixturePath = path.join(testPath, './__fixture/')
 
-function fromSrc(file) {
-  return path.join(srcPath, file)
-}
-
-function fromTest(file) {
-  return path.join(testPath, file)
-}
-
-function fromFixture(file) {
-  return path.join(fixturePath, file)
-}
-
 function getIOFilesHelpers(testName) {
 
   const inputPath = path.join(fixturePath, `${testName}-input`)
@@ -44,10 +32,6 @@ module.exports = {
   srcPath,
   testPath,
   fixturePath,
-
-  fromSrc,
-  fromTest,
-  fromFixture,
 
   getIOFilesHelpers,
 }

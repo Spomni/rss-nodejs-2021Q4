@@ -7,13 +7,9 @@ class RejectionTimer {
     this._descriptor = null
     this._resolve = null
   }
-  
-  get promise() {
-    return this._promise
-  }
 
   start() {
-  
+
     if (!this._promise) {
       const { _reason, _timeout } = this
 
@@ -27,21 +23,16 @@ class RejectionTimer {
   }
 
   clear() {
-  
+
     if (!this._promise) {
       this._promise = Promise._resolve()
-
     } else {
       clearTimeout(this._descriptor)
       this._resolve()
     }
-    
+
     return this._promise
   }
-}
-
-function getRejectionTimer(reason, timeout) {
-  return new RejectionTimer(reason, timeout)
 }
 
 module.exports = {

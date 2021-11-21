@@ -13,25 +13,6 @@ function getRejectionTimer(timeout) {
   return new RejectionTimer(reason, timeout)
 }
 
-async function onErrorPromise({ subProcess, handleError }) {
-
-  if (!handleError) return Promise.resolve()
-
-  return new Promise((resolve, reject) => {
-
-    subProcess.on('close', () => resolve())
-
-    subProcess.on('error', async (error) => {
-      try {
-        await handleError({ subProcess, error })
-        resolve()
-      } catch (error) {
-        reject(error)
-      }
-    })
-  })
-}
-
 async function onSpawnPromise({ subProcess, handleSpawn }) {
 
   if (!handleSpawn) return Promise.resolve()
@@ -101,7 +82,6 @@ async function spawnToTest({
     await Promise.race([
       timer.start(),
       Promise.all([
-        onErrorPromise({ subProcess, handleError }),
         onSpawnPromise({ subProcess, handleSpawn }),
         onClosePromise({ subProcess, handleClose }),
         waitClosing({ subProcess }),
@@ -114,12 +94,6 @@ async function spawnToTest({
     subProcess.kill()
 
     if (after) await after()
-  }
-}
-
-async function spawnSeriesToTest(configArray) {
-  for (let config of configArray) {
-    await spawnToTest(config)
   }
 }
 
@@ -138,7 +112,6 @@ function seriesByArgs(config) {
 
 module.exports = {
   spawnToTest,
-  spawnSeriesToTest,
   spawnParallelToTest,
   seriesByArgs,
 }

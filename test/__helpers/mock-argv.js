@@ -1,13 +1,9 @@
 const mockProps = require('jest-mock-props')
 mockProps.extend(jest);
 
-function mockArgv(argv, callback, {
-  originalPathes = true
-} = {}) {
+function mockArgv(argv, callback) {
 
-  const value = (originalPathes)
-    ? [...process.argv.slice(0, 2), ...argv]
-    : [...argv]
+  const value = [...process.argv.slice(0, 2), ...argv]
 
   const argvMock = jest.spyOn(process, 'argv').mockValue(value)
 
