@@ -1,7 +1,28 @@
 {
+  "name": "rss-nodejs-2021q4",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "lib": "src"
+  },
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Spomni/rss-nodejs-2021Q4.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Spomni/rss-nodejs-2021Q4/issues"
+  },
+  "homepage": "https://github.com/Spomni/rss-nodejs-2021Q4#readme",
   "devDependencies": {
-    "@types/jest": "^27.0.2",
     "jest": "^27.3.1",
+    "jest-extended": "^1.1.0",
     "jest-mock-props": "^1.9.0"
   }
 }

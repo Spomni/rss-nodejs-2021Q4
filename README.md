@@ -21,7 +21,7 @@ git checkout task-1/dev
 
 4. Run node and pass them the name of this application and its options
 ```bash
-node my_ciphering_cli -c A
+node index -c A
 ```
 
 ## How to use application

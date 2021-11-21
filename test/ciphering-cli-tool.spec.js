@@ -496,7 +496,7 @@ describe('cli', function () {
       })
     })
 
-    it.only('Should write to the file every times when stdin is pushed', async function () {
+    it('Should write to the file every times when stdin is pushed', async function () {
 
       const input = 'abc'
       const output = 'zyx'
