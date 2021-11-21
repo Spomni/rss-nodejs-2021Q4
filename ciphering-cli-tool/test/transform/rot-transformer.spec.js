@@ -1,7 +1,9 @@
-const { Transform, Readable, PassThrough } = require('stream')
+const { Transform } = require('stream')
 
 const matchers = require('jest-extended')
 expect.extend(matchers);
+
+const { testTransformer } = require('../lib/test-transformer')
 
 const { RotTransformer } = require('../../lib/transform/rot-transformer')
 const { DIRECTION_ } = RotTransformer
@@ -11,29 +13,6 @@ const CODE_ = {
   LOWER_Z: 122,
   UPPER_A: 65,
   UPPER_Z: 90,
-}
-
-async function testTransformer(transformer, inputData, callback) {
-  return new Promise((resolve, reject) => {
-
-    const input = new Readable({ read: () => {} })
-    const output = new PassThrough()
-
-    output.on(`data`, (data) => {
-      try {
-        callback(data)
-        resolve()
-      } catch (error) {
-        reject(error)
-      }
-    })
-
-    input
-      .pipe(transformer)
-      .pipe(output)
-
-    input.push(inputData)
-  })
 }
 
 describe('RotTransformer', () => {
