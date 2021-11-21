@@ -26,11 +26,11 @@ const {
 
 const { onFileChange } = require('./__helpers/on-file-change')
 
-const cliPath = path.resolve(srcPath, '../index.js')
+const appPath = path.resolve(srcPath, '../index.js')
 
 const { ioDelay } = global.testEnv
 
-describe('cli', function () {
+describe('ciphering-cli-tool', function () {
 
   beforeEach(async () => await clearIOFiles())
   afterAll(async () => await removeIOFiles())
@@ -40,7 +40,7 @@ describe('cli', function () {
     it('if no option is passed', async function () {
       await spawnToTest({
 
-        args: [`${cliPath}`],
+        args: [`${appPath}`],
 
         handleClose({ suberr, code }) {
           expect(suberr).toMatch(ERR_REG_EXP_.FIRST_ARG_ERR)
@@ -53,8 +53,8 @@ describe('cli', function () {
       await spawnParallelToTest(seriesByArgs({
 
         argsSeries: [
-          `${cliPath} -config`,
-          `${cliPath} --i`,
+          `${appPath} -config`,
+          `${appPath} --i`,
         ].map((str) => str.split(' ')),
 
         handleClose({ suberr, code }) {
@@ -68,8 +68,8 @@ describe('cli', function () {
       await spawnParallelToTest(seriesByArgs({
 
         argsSeries: [
-          `${cliPath} -c A --conf`,
-          `${cliPath} -c R1 --price`,
+          `${appPath} -c A --conf`,
+          `${appPath} -c R1 --price`,
         ].map((str) => str.split(' ')),
 
         handleClose({ suberr, code }) {
@@ -82,7 +82,7 @@ describe('cli', function () {
     it('if any value passed to the --debug option', async function () {
       await spawnToTest({
 
-        args: `${cliPath} -c C0 --debug true`.split(' '),
+        args: `${appPath} -c C0 --debug true`.split(' '),
 
         handleClose({ suberr, code }) {
           expect(suberr).toMatch(ERR_REG_EXP_.FLAG_VALUE_ERR)
@@ -95,12 +95,12 @@ describe('cli', function () {
       await spawnParallelToTest(seriesByArgs({
 
         argsSeries: [
-          `${cliPath} --config a b`,
-          `${cliPath} -c s d`,
-          `${cliPath} --input a b`,
-          `${cliPath} -i a s`,
-          `${cliPath} --output a a`,
-          `${cliPath} -o a s w d`,
+          `${appPath} --config a b`,
+          `${appPath} -c s d`,
+          `${appPath} --input a b`,
+          `${appPath} -i a s`,
+          `${appPath} --output a a`,
+          `${appPath} -o a s w d`,
         ].map((str) => str.split(' ')),
 
         handleClose({ suberr, code }) {
@@ -113,7 +113,7 @@ describe('cli', function () {
     it('if the option --config is missed', async function () {
       await spawnToTest({
 
-        args: `${cliPath} --input input.txt`.split(' '),
+        args: `${appPath} --input input.txt`.split(' '),
 
         handleClose({ suberr, code }) {
           expect(suberr).toMatch(ERR_REG_EXP_.MISS_REQUIRED_OPT_ERR)
@@ -126,9 +126,9 @@ describe('cli', function () {
       await spawnParallelToTest(seriesByArgs({
 
         argsSeries: [
-          `${cliPath} --config`,
-          `${cliPath} -c A -i`,
-          `${cliPath} -c A --output`,
+          `${appPath} --config`,
+          `${appPath} -c A -i`,
+          `${appPath} -c A --output`,
         ].map((str) => str.split(' ')),
 
         handleClose({ suberr, code }) {
@@ -142,9 +142,9 @@ describe('cli', function () {
       await spawnParallelToTest(seriesByArgs({
 
         argsSeries: [
-          `${cliPath} --config A -c R1`,
-          `${cliPath} -c A -i a --input d -i a`,
-          `${cliPath} -c A --output d -c a`,
+          `${appPath} --config A -c R1`,
+          `${appPath} -c A -i a --input d -i a`,
+          `${appPath} -c A --output d -c a`,
         ].map((str) => str.split(' ')),
 
         handleClose({ suberr, code }) {
@@ -157,7 +157,7 @@ describe('cli', function () {
     it('if input option lead to a non-existent file', async function () {
       await spawnToTest({
 
-        args: `${cliPath} --config A -i no-file`.split(' '),
+        args: `${appPath} --config A -i no-file`.split(' '),
 
         handleClose({ suberr, code }) {
           expect(suberr).toMatch(ERR_REG_EXP_.NO_READ_ACCESS_ERR)
@@ -169,7 +169,7 @@ describe('cli', function () {
     it('if input option lead to a directory', async function () {
       await spawnToTest({
 
-        args: `${cliPath} --config A -i ${testPath}`.split(' '),
+        args: `${appPath} --config A -i ${testPath}`.split(' '),
 
         handleClose({ suberr, code }) {
           expect(suberr).toMatch(ERR_REG_EXP_.INPUT_IS_DIR_ERR)
@@ -181,7 +181,7 @@ describe('cli', function () {
     it('if output option lead to a non-existent file', async function () {
       await spawnToTest({
 
-        args: `${cliPath} --config A -o no-file`.split(' '),
+        args: `${appPath} --config A -o no-file`.split(' '),
 
         handleClose({ suberr, code }) {
           expect(suberr).toMatch(ERR_REG_EXP_.NO_WRITE_ACCESS_ERR)
@@ -193,7 +193,7 @@ describe('cli', function () {
     it('if input option lead to a directory', async function () {
       await spawnToTest({
 
-        args: `${cliPath} --config A -o ${testPath}`.split(' '),
+        args: `${appPath} --config A -o ${testPath}`.split(' '),
 
         handleClose({ suberr, code }) {
           expect(suberr).toMatch(ERR_REG_EXP_.OUTPUT_IS_DIR_ERR)
@@ -206,10 +206,10 @@ describe('cli', function () {
       await spawnParallelToTest(seriesByArgs({
 
         argsSeries: [
-          `${cliPath} --config "-A"`,
-          `${cliPath} -c "-C1"`,
-          `${cliPath} -c "--"`,
-          `${cliPath} -c "-"`,
+          `${appPath} --config "-A"`,
+          `${appPath} -c "-C1"`,
+          `${appPath} -c "--"`,
+          `${appPath} -c "-"`,
         ].map((str) => str.split(' ')),
 
         handleClose({ suberr, code }) {
@@ -223,8 +223,8 @@ describe('cli', function () {
       await spawnParallelToTest(seriesByArgs({
 
         argsSeries: [
-          `${cliPath} --config "A-"`,
-          `${cliPath} -c "C1--"`,
+          `${appPath} --config "A-"`,
+          `${appPath} -c "C1--"`,
         ].map((str) => str.split(' ')),
 
         handleClose({ suberr, code }) {
@@ -238,8 +238,8 @@ describe('cli', function () {
       await spawnParallelToTest(seriesByArgs({
 
         argsSeries: [
-          `${cliPath} -c "C13"`,
-          `${cliPath} -c R0a`,
+          `${appPath} -c "C13"`,
+          `${appPath} -c R0a`,
         ].map((str) => str.split(' ')),
 
         handleClose({ suberr, code }) {
@@ -253,9 +253,9 @@ describe('cli', function () {
       await spawnParallelToTest(seriesByArgs({
 
         argsSeries: [
-          `${cliPath} -c "W1"`,
-          `${cliPath} -c T0`,
-          `${cliPath} -c a`,
+          `${appPath} -c "W1"`,
+          `${appPath} -c T0`,
+          `${appPath} -c a`,
         ].map((str) => str.split(' ')),
 
         handleClose({ suberr, code }) {
@@ -269,9 +269,9 @@ describe('cli', function () {
       await spawnParallelToTest(seriesByArgs({
 
         argsSeries: [
-          `${cliPath} -c "C"`,
-          `${cliPath} -c R`,
-          `${cliPath} -c A-R-A`,
+          `${appPath} -c "C"`,
+          `${appPath} -c R`,
+          `${appPath} -c A-R-A`,
         ].map((str) => str.split(' ')),
 
         handleClose({ suberr, code }) {
@@ -284,7 +284,7 @@ describe('cli', function () {
     it('if the --config option has a direction for the A cipher', async function () {
       await spawnToTest({
 
-        args: `${cliPath} -c A1`.split(' '),
+        args: `${appPath} -c A1`.split(' '),
 
         handleClose({ suberr, code }) {
           expect(suberr).toMatch(ERR_REG_EXP_.INVALID_DIRECTION_ERR)
@@ -297,9 +297,9 @@ describe('cli', function () {
       await spawnParallelToTest(seriesByArgs({
 
         argsSeries: [
-          `${cliPath} -c "C2"`,
-          `${cliPath} -c R3`,
-          `${cliPath} -c A-Rs-A`,
+          `${appPath} -c "C2"`,
+          `${appPath} -c R3`,
+          `${appPath} -c A-Rs-A`,
         ].map((str) => str.split(' ')),
 
         handleClose({ suberr, code }) {
@@ -323,7 +323,7 @@ describe('cli', function () {
 
       await spawnToTest({
 
-        args: `${cliPath} -c A -i ${inputPath}`.split(' '),
+        args: `${appPath} -c A -i ${inputPath}`.split(' '),
 
         handleClose({ subout, code }) {
           expect(subout).toBe(output)
@@ -339,7 +339,7 @@ describe('cli', function () {
 
       await spawnToTest({
 
-        args: `${cliPath} -c C1`.split(' '),
+        args: `${appPath} -c C1`.split(' '),
 
         handleSpawn({ subProcess }) {
           subProcess.stdin.write(input)
@@ -360,7 +360,7 @@ describe('cli', function () {
 
       await spawnToTest({
 
-        args: `${cliPath} -c C0`.split(' '),
+        args: `${appPath} -c C0`.split(' '),
 
         async handleSpawn({ subProcess }) {
           for (let input of fixtures) {
@@ -387,8 +387,8 @@ describe('cli', function () {
     it('Should write to the file if --output or -o options is passed', async function () {
 
       const fixtures = [
-        [`${cliPath} -c C1 -i ${inputPath} -o ${outputPath}`, 'O', 'P'],
-        [`${cliPath} -c C1 -i ${inputPath} --output ${outputPath}`, '!!!', '!!!'],
+        [`${appPath} -c C1 -i ${inputPath} -o ${outputPath}`, 'O', 'P'],
+        [`${appPath} -c C1 -i ${inputPath} --output ${outputPath}`, '!!!', '!!!'],
       ]
 
       for (let [argsStr, input, output] of fixtures) {
@@ -423,7 +423,7 @@ describe('cli', function () {
 
       await spawnToTest({
 
-        args: `${cliPath} -c A -i ${inputPath} -o ${outputPath}`.split(' '),
+        args: `${appPath} -c A -i ${inputPath} -o ${outputPath}`.split(' '),
 
         async before() {
           await fs.writeFile(inputPath, input)
@@ -446,7 +446,7 @@ describe('cli', function () {
 
       await spawnToTest({
 
-        args: `${cliPath} -c R1 -i ${inputPath}`.split(' '),
+        args: `${appPath} -c R1 -i ${inputPath}`.split(' '),
 
         async before() {
           await fs.writeFile(inputPath, input)
@@ -468,7 +468,7 @@ describe('cli', function () {
 
       await spawnToTest({
 
-        args: `${cliPath} -c A`.split(' '),
+        args: `${appPath} -c A`.split(' '),
 
         handleSpawn({ subProcess }) {
 
@@ -501,7 +501,7 @@ describe('cli', function () {
 
       await spawnToTest({
 
-        args: `${cliPath} -c A -o ${outputPath}`.split(' '),
+        args: `${appPath} -c A -o ${outputPath}`.split(' '),
 
         async handleSpawn({ subProcess }) {
           let index = 0
@@ -551,7 +551,7 @@ describe('cli', function () {
 
       await spawnToTest({
 
-        args: `${cliPath} -c R1-C0-A`.split(' '),
+        args: `${appPath} -c R1-C0-A`.split(' '),
 
         handleSpawn({ subProcess }) {
 
@@ -575,50 +575,55 @@ describe('cli', function () {
 
     beforeEach(async () => await clearIOFiles())
 
-    it('Should works correct with task examples', async function () {
+    it.each([
+      [
+        '$ node my_ciphering_cli -c "C1-C1-R0-A" -i "./input.txt" -o "./output.txt"',
+        "C1-C1-R0-A",
+        `Myxn xn nbdobm. Tbnnfzb ferlm "_" nhteru!`,
+      ],
+      [
+        '$ node my_ciphering_cli -c "C1-C0-A-R1-R0-A-R0-R0-C1-A" -i "./input.txt" -o "./output.txt"',
+        "C1-C0-A-R1-R0-A-R0-R0-C1-A",
+        `Vhgw gw wkmxkv. Ckwwoik onauv "_" wqcnad!`,
+      ],
+      [
+        '$ node my_ciphering_cli -c "A-A-A-R1-R0-R0-R0-C1-C1-A" -i "./input.txt" -o "./output.txt"',
+        '"A-A-A-R1-R0-R0-R0-C1-C1-A"',
+        'Hvwg wg gsqfsh. Asggous opcih "_" gmapcz!'
+      ],
+      [
+        '$ node my_ciphering_cli -c "C1-R1-C0-C0-A-R0-R1-R1-A-C1" -i "./input.txt" -o "./output.txt"',
+        '"C1-R1-C0-C0-A-R0-R1-R1-A-C1"',
+        'This is secret. Message about "_" symbol!'
+      ]
+    ])('%s', async function (name, config, output) {
 
       const input = `This is secret. Message about "_" symbol!`
 
-      const getArgs = (config) => `${cliPath} -c ${config} -i "${inputPath}" -o "${outputPath}"`.split(' ')
-
-      const fixtures = [
-        {
-          config: `"C1-C1-R0-A"`,
-          output: `Myxn xn nbdobm. Tbnnfzb ferlm "_" nhteru!`,
-        },
-        {
-          config: `"C1-C0-A-R1-R0-A-R0-R0-C1-A"`,
-          output: `Vhgw gw wkmxkv. Ckwwoik onauv "_" wqcnad!`
-        },
-        {
-          config: `"A-A-A-R1-R0-R0-R0-C1-C1-A"`,
-          output: `Hvwg wg gsqfsh. Asggous opcih "_" gmapcz!`,
-        },
-        {
-          config: `"C1-R1-C0-C0-A-R0-R1-R1-A-C1"`,
-          output: `This is secret. Message about "_" symbol!`
-        },
-      ]
-
       await fs.writeFile(inputPath, input)
 
-      for (let { config, output } of fixtures) {
-        await spawnToTest({
+      await spawnToTest({
 
-          args: getArgs(config),
+        args: [
+          appPath,
+          ...`-c ${config}`.split(' '),
+          ...`-i "${inputPath}"`.split(' '),
+          ...`-o "${outputPath}"`.split(' '),
+          '--debug'
+        ],
 
-          async handleClose({ code }) {
-            expect(code).toBe(0)
+        async handleClose({ code }) {
 
-            const content = await fs.readFile(outputPath, 'utf-8')
-            expect(content).toBe(output)
-          },
+          expect(code).toBe(0)
 
-          async after() {
-            await fs.writeFile(outputPath, '')
-          }
-        })
-      }
+          const content = await fs.readFile(outputPath, 'utf-8')
+          expect(content).toBe(output)
+        },
+
+        async after() {
+          await fs.writeFile(outputPath, '')
+        }
+      })
     })
   })
 })
