@@ -1,7 +1,7 @@
 const mockProps = require('jest-mock-props')
 mockProps.extend(jest);
 
-const { mockArgv } = require('./lib/mock-argv')
+const { mockArgv } = require('./__helpers/mock-argv')
 
 const {
   ArgvParser,

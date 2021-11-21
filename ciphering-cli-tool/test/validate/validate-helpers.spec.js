@@ -1,7 +1,7 @@
 const {
   testPath,
   getIOFilesHelpers,
-} = require('../lib/test-file-helpers')
+} = require('../__helpers/test-file-helpers')
 
 const {
   validateConfig,

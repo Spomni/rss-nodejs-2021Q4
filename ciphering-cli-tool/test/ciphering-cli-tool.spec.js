@@ -4,11 +4,11 @@ const {
   spawnToTest,
   spawnParallelToTest,
   seriesByArgs,
-} = require('./lib/spawn-to-test')
+} = require('./__helpers/spawn-to-test')
 
-const { timeout } = require('./lib/timeout-promise')
+const { timeout } = require('./__helpers/timeout-promise')
 
-const ERR_REG_EXP_ = require('./lib/cli-errors-reg-exp')
+const ERR_REG_EXP_ = require('./__helpers/cli-errors-reg-exp')
 
 const cliPath = 'index'
 const inputPath = 'test/fixture/cli-input'

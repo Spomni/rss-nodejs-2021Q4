@@ -1,5 +1,5 @@
 const { cipher } = require('../../lib/cipher')
-const { timeout } = require('../lib/timeout-promise')
+const { timeout } = require('../__helpers/timeout-promise')
 
 const jestExtended = require('jest-extended')
 expect.extend(jestExtended)

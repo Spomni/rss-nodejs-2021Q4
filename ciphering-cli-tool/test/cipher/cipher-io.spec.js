@@ -1,9 +1,9 @@
 const fs = require('fs')
 const { Readable, Writable } = require('stream')
 
-const { promisifyListener } = require('../lib/promisify-listener')
-const { getIOFilesHelpers  } = require('../lib/test-file-helpers')
-const { onFileChangeOnce } = require('../lib/on-file-change-promise')
+const { promisifyListener } = require('../__helpers/promisify-listener')
+const { getIOFilesHelpers  } = require('../__helpers/test-file-helpers')
+const { onFileChangeOnce } = require('../__helpers/on-file-change-promise')
 
 const {
   inputPath,

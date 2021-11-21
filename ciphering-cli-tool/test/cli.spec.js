@@ -1,6 +1,6 @@
 const jestExtended = require('jest-extended')
 
-const { mockStderr } = require('./lib/mock-std-io')
+const { mockStderr } = require('./__helpers/mock-std-io')
 const { cli } = require('../lib/cli/cli')
 
 expect.extend(jestExtended)
