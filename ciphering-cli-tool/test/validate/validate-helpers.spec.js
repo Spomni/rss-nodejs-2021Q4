@@ -23,16 +23,16 @@ describe('validate-helpers.js', () => {
 
   describe('validateInput()', () => {
 
-    it('Should throw an error if the function is called without arguments',function () {
-      expect(() => validateInput()).toThrow()
-    })
-
     it('Should throw an error if no access to read file', function () {
       expect(() => validateInput('no-file')).toThrow()
     })
 
     it('Should throw an error if passed file is direcvtory', function () {
       expect(() => validateInput(testPath)).toThrow()
+    })
+
+    it('Should not throw any error if the function is called without arguments',function () {
+      expect(() => validateInput()).not.toThrow()
     })
 
     it('Should not throw any error if input is valid', function () {
@@ -43,16 +43,16 @@ describe('validate-helpers.js', () => {
 
   describe('validateOutput()', () => {
 
-    it('Should throw an error if the function is called without arguments',function () {
-      expect(() => validateOutput()).toThrow()
-    })
-
     it('Should throw an error if no access to write file', function () {
       expect(() => validateOutput('no-file')).toThrow()
     })
 
     it('Should throw an error if passed file is direcvtory', function () {
       expect(() => validateOutput(testPath)).toThrow()
+    })
+
+    it('Should not throw any error if the function is called without arguments',function () {
+      expect(() => validateOutput()).not.toThrow()
     })
 
     it('Should not throw any error if output is valid', function () {

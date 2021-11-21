@@ -97,7 +97,7 @@ function isDirectory(filePath) {
 
 function validateInput(filePath) {
 
-  if (!filePath) throw new Error('Argument "filePath" is not passed')
+  if (!filePath) return
 
   const absPath = path.resolve(filePath)
 
@@ -114,7 +114,7 @@ function validateInput(filePath) {
 
 function validateOutput(filePath) {
 
-  if (!filePath) throw new Error('Argument "filePath" is not passed')
+  if (!filePath) return
 
   const absPath = path.resolve(filePath)
 
