@@ -1,0 +1,6 @@
+☐ add check of the request content-type header
+☐ add validation layer to the person-controller/create-person module
+☐ add message logging to explain starting mode
+✔ add not found check to personController @done (28.11.2021, 21:04:16)
+☐ make deep refactoring of the modules crud and storage
+☐ write README.md

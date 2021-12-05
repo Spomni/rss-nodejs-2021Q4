@@ -1,0 +1,47 @@
+{
+  "name": "simple-crud-api",
+  "version": "0.0.0",
+  "description": "task number 3 of the rss-nodejs-2021q4",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest",
+    "test:coverage": "jest --coverage",
+    "test:e2e": "jest --testMatch=**/*.e2e.js",
+    "test:full": "npm run test:e2e && npm run test:coverage",
+    "start:dev": "cross-env NODE_ENV=development nodemon src/index.js",
+    "start:prod": "webpack && cross-env NODE_ENV=production node dist/main.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Spomni/simple-crud-api.git"
+  },
+  "author": "spomni",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/Spomni/simple-crud-api/issues"
+  },
+  "homepage": "https://github.com/Spomni/simple-crud-api#readme",
+  "devDependencies": {
+    "@types/jest": "^27.0.3",
+    "@types/supertest": "^2.0.11",
+    "jest": "^27.3.1",
+    "jest-extended": "^1.1.0",
+    "supertest": "^6.1.6"
+  },
+  "dependencies": {
+    "cross-env": "^7.0.3",
+    "dotenv": "^10.0.0",
+    "nodemon": "^2.0.15",
+    "uuid": "^8.3.2",
+    "webpack": "^5.64.4",
+    "webpack-cli": "^4.9.1"
+  },
+  "jest": {
+    "coveragePathIgnorePatterns": [
+      "<rootDir>/test/"
+    ],
+    "setupFiles": [
+      "<rootDir>/test/__setup-test-env"
+    ]
+  }
+}
